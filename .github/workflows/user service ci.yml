@@ -1,5 +1,11 @@
 name: User Service CI
 
+on:
+  push:
+    branches:
+      - main
+      - development
+	  -config/ci
 defaults:
     run:
       working-directory: ./UserService
