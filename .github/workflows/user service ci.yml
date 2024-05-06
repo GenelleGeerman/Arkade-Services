@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - development
-      -config/ci
+      - config/ci
 defaults:
     run:
       working-directory: ./UserService
