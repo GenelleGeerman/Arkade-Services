@@ -1,15 +1,8 @@
 name: User Service CI
 
-on:
-  push:
-    branches:
-      - main
-      - development
-  pull_request:
-    branches:
-      - main
-      - development
-
+defaults:
+    run:
+      working-directory: ./UserService
 jobs:
   build:
     runs-on: ubuntu-latest
