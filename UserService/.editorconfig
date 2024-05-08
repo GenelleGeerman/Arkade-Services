@@ -1,0 +1,187 @@
+# Editor configuration for Visual Studio 2022
+
+# Naming rules
+[*.{cs, vb}]
+# Interface
+dotnet_naming_rule.interface_capitalization_style.severity = suggestion
+dotnet_naming_rule.interface_capitalization_style.symbols = interface
+dotnet_naming_rule.interface_capitalization_style.style = capitalization:PascalCase
+dotnet_naming_symbols.interface.applicable_kinds = interface
+dotnet_naming_symbols.interface.applicable_accessibilities = public
+dotnet_naming_symbols.interface.required_prefix = I
+
+# Attribute types
+dotnet_naming_rule.attribute_types_end_with_attribute.severity = suggestion
+dotnet_naming_rule.attribute_types_end_with_attribute.symbols = attribute
+dotnet_naming_rule.attribute_types_end_with_attribute.style = end_with:Attribute
+
+# Enum types
+dotnet_naming_rule.enum_types_capitalization_style.severity = suggestion
+dotnet_naming_rule.enum_types_capitalization_style.symbols = enum
+dotnet_naming_rule.enum_types_capitalization_style.style = capitalization:PascalCase
+
+# Enum member
+dotnet_naming_rule.enum_members_capitalization_style.severity = suggestion
+dotnet_naming_rule.enum_members_capitalization_style.symbols = enumMembers
+dotnet_naming_rule.enum_members_capitalization_style.style = capitalization:PascalCase
+
+# Class
+dotnet_naming_rule.class_capitalization_style.severity = suggestion
+dotnet_naming_rule.class_capitalization_style.symbols = class
+dotnet_naming_rule.class_capitalization_style.style = capitalization:PascalCase
+
+# Variables
+dotnet_naming_rule.variables_capitalization_style.severity = suggestion
+dotnet_naming_rule.variables_capitalization_style.symbols = variable
+dotnet_naming_rule.variables_capitalization_style.style = capitalization:camelCase
+
+# Constructor
+dotnet_naming_rule.constructor_capitalization_style.severity = suggestion
+dotnet_naming_rule.constructor_capitalization_style.symbols = method
+dotnet_naming_rule.constructor_capitalization_style.style = capitalization:PascalCase
+
+# Method
+dotnet_naming_rule.method_capitalization_style.severity = suggestion
+dotnet_naming_rule.method_capitalization_style.symbols = method
+dotnet_naming_rule.method_capitalization_style.style = capitalization:PascalCase
+
+# Parameters in Method
+dotnet_naming_rule.parameters_in_method_capitalization_style.severity = suggestion
+dotnet_naming_rule.parameters_in_method_capitalization_style.symbols = parameter
+dotnet_naming_rule.parameters_in_method_capitalization_style.style = capitalization:camelCase
+
+# Constants
+dotnet_naming_rule.constants_capitalization_style.severity = suggestion
+dotnet_naming_rule.constants_capitalization_style.symbols = constant
+dotnet_naming_rule.constants_capitalization_style.style = capitalization:PascalCase
+
+# Field
+dotnet_naming_rule.fields_capitalization_style.severity = suggestion
+dotnet_naming_rule.fields_capitalization_style.symbols = field
+dotnet_naming_rule.fields_capitalization_style.style = capitalization:PascalCase
+
+# Struct
+dotnet_naming_rule.structs_capitalization_style.severity = suggestion
+dotnet_naming_rule.structs_capitalization_style.symbols = struct
+dotnet_naming_rule.structs_capitalization_style.style = capitalization:PascalCase
+
+# Property
+dotnet_naming_rule.properties_capitalization_style.severity = suggestion
+dotnet_naming_rule.properties_capitalization_style.symbols = property
+dotnet_naming_rule.properties_capitalization_style.style = capitalization:PascalCase
+
+# Delegate
+dotnet_naming_rule.delegates_capitalization_style.severity = suggestion
+dotnet_naming_rule.delegates_capitalization_style.symbols = delegate
+dotnet_naming_rule.delegates_capitalization_style.style = capitalization:PascalCase
+
+# Event
+dotnet_naming_rule.events_capitalization_style.severity = suggestion
+dotnet_naming_rule.events_capitalization_style.symbols = event
+dotnet_naming_rule.events_capitalization_style.style = capitalization:PascalCase
+
+# Local Functions
+dotnet_naming_rule.local_functions_capitalization_style.severity = suggestion
+dotnet_naming_rule.local_functions_capitalization_style.symbols = localFunction
+dotnet_naming_rule.local_functions_capitalization_style.style = capitalization:PascalCase
+
+# Record plus parameters
+dotnet_naming_rule.record_plus_parameters_capitalization_style.severity = suggestion
+dotnet_naming_rule.record_plus_parameters_capitalization_style.symbols = record
+dotnet_naming_rule.record_plus_parameters_capitalization_style.style = capitalization:PascalCase
+
+# Private global variables
+dotnet_naming_rule.private_global_variables_capitalization_style.severity = suggestion
+dotnet_naming_rule.private_global_variables_capitalization_style.symbols = privateGlobalVariable
+dotnet_naming_rule.private_global_variables_capitalization_style.style = prefix:_ camelCase
+
+# Static
+dotnet_naming_rule.static_capitalization_style.severity = suggestion
+dotnet_naming_rule.static_capitalization_style.symbols = static
+dotnet_naming_rule.static_capitalization_style.style = capitalization:UPPER_CASE
+
+# Tuple element names
+dotnet_naming_rule.tuple_element_names_capitalization_style.severity = suggestion
+dotnet_naming_rule.tuple_element_names_capitalization_style.symbols = tupleElement
+dotnet_naming_rule.tuple_element_names_capitalization_style.style = capitalization:PascalCase
+
+# Variables declared using tuple syntax
+dotnet_naming_rule.variables_declared_using_tuple_syntax_capitalization_style.severity = suggestion
+dotnet_naming_rule.variables_declared_using_tuple_syntax_capitalization_style.symbols = variable
+dotnet_naming_rule.variables_declared_using_tuple_syntax_capitalization_style.style = capitalization:camelCase
+
+# General Do’s and Don’ts
+# Never use numbers in variables, parameters, and type members.
+dotnet_naming_rule.avoid_numbers_in_variables.severity = suggestion
+dotnet_naming_rule.avoid_numbers_in_variables.symbols = variable, parameter, typeMember
+dotnet_naming_rule.avoid_numbers_in_variables.style = none
+
+# Do not use prefix fields.
+dotnet_naming_rule.avoid_prefix_fields.severity = suggestion
+dotnet_naming_rule.avoid_prefix_fields.symbols = field
+dotnet_naming_rule.avoid_prefix_fields.style = none
+
+# Don't repeat the name of a class or enumeration in its members.
+dotnet_naming_rule.avoid_repeating_class_or_enum_names_in_members.severity = suggestion
+dotnet_naming_rule.avoid_repeating_class_or_enum_names_in_members.symbols = member
+dotnet_naming_rule.avoid_repeating_class_or_enum_names_in_members.style = none
+
+# Name your members, parameters, and variables according to their meaning and not their type.
+dotnet_naming_rule.name_members_parameters_variables_by_meaning.severity = suggestion
+dotnet_naming_rule.name_members_parameters_variables_by_meaning.symbols = member, parameter, variable
+dotnet_naming_rule.name_members_parameters_variables_by_meaning.style = suggestion
+
+# Do not use terms like Enum or Class in a name.
+dotnet_naming_rule.avoid_using_terms_like_enum_or_class_in_name.severity = suggestion
+dotnet_naming_rule.avoid_using_terms_like_enum_or_class_in_name.symbols = type
+dotnet_naming_rule.avoid_using_terms_like_enum_or_class_in_name.style = none
+
+# Do not add types in variable names, except to avoid conflicts with other variables.
+dotnet_naming_rule.avoid_adding_types_in_variable_names.severity = suggestion
+dotnet_naming_rule.avoid_adding_types_in_variable_names.symbols = variable
+dotnet_naming_rule.avoid_adding_types_in_variable_names.style = none
+
+# Have similar member names related to the .NET framework classes.
+dotnet_naming_rule.similar_member_names_related_to_framework_classes.severity = suggestion
+dotnet_naming_rule.similar_member_names_related_to_framework_classes.symbols = member
+dotnet_naming_rule.similar_member_names_related_to_framework_classes.style = none
+
+# Properly name properties
+# Use nouns, Noun Phrases, or occasionally adjective phrases.
+dotnet_naming_rule.properly_name_properties.use = true
+dotnet_naming_rule.properly_name_properties.symbols = property
+dotnet_naming_rule.properly_name_properties.style = noun_nounPhrases_or_adjectivePhrases
+
+# Name Boolean Properties that show agreement.
+dotnet_naming_rule.name_boolean_properties_that_show_agreement.use = true
+dotnet_naming_rule.name_boolean_properties_that_show_agreement.symbols = property
+dotnet_naming_rule.name_boolean_properties_that_show_agreement.style = boolean
+
+# Name namespaces using names, layers, verbs, and features
+dotnet_naming_rule.name_namespaces_using_names_layers_verbs_and_features.use = true
+dotnet_naming_rule.name_namespaces_using_names_layers_verbs_and_features.symbols = namespace
+dotnet_naming_rule.name_namespaces_using_names_layers_verbs_and_features.style = namespace
+
+# Ordering in a code file
+# Proper structure of the file, based on types with what needs to be at the top:
+dotnet_naming_rule.ordering_in_a_code_file.use = true
+dotnet_naming_rule.ordering_in_a_code_file.symbols = type
+dotnet_naming_rule.ordering_in_a_code_file.style = ordering
+
+# Prefix using “On”
+dotnet_naming_rule.prefix_using_On.severity = suggestion
+dotnet_naming_rule.prefix_using_On.symbols = event
+dotnet_naming_rule.prefix_using_On.style = prefix_On
+
+# Comment styling
+dotnet_commenting_rule.single_line_comment_style.severity = suggestion
+dotnet_commenting_rule.single_line_comment_style.style = single_line_comment
+
+dotnet_commenting_rule.avoid_multi_line_comments.severity = suggestion
+dotnet_commenting_rule.avoid_multi_line_comments.style = none
+
+dotnet_commenting_rule.xml_comment_style.severity = suggestion
+dotnet_commenting_rule.xml_comment_style.style = xml_comment
+
+# Composition over inheritance
+dotnet_composition_over_inheritance.use = true

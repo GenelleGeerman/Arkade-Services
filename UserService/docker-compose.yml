@@ -1,0 +1,12 @@
+﻿services:
+  user-service:
+    image: tlc-quantum/user-service
+    container_name: user-service
+    ports:
+      - "5010:8080"
+      - "5011:443"
+    build:
+      context: .
+      dockerfile: UserService/Dockerfile
+      tags:
+        - "tlc-quantum/user-service:test"
