@@ -2,7 +2,6 @@ using BusinessLayer.Interfaces;
 using BusinessLayer.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using UserService.DTO;
 
 namespace UserService.Controllers;
@@ -13,12 +12,12 @@ public class RegisterController(IRegisterService service) : ControllerBase
 {
     [HttpPost]
     [EnableCors("AllowAllPolicy")]
-    public IActionResult Register([FromBody] UserRequest request)
+    public async Task<IActionResult> Register([FromBody] UserRequest request)
     {
         try
         {
             if (service.IsEmailExisting(request.GetUser())) return Unauthorized("Email Exists");
-            UserData user = service.Register(request.GetUser());
+            UserData user = await service.Register(request.GetUser());
             Console.WriteLine(user.Id);
             return string.IsNullOrEmpty(user.Token) ? BadRequest() : Ok(user);
         }

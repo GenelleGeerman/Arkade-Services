@@ -28,15 +28,15 @@ public class RegisterControllerTest
         repository.Setup(p => p.Register(It.Is<UserData>(u => u.Email.Equals("existing@email.com")))).Returns(false);
         repository.Setup(p => p.Register(It.IsAny<UserData>())).Returns(true);
         Mock<ILoginService> loginService = new();//TODO: Fix this
-        loginService.Setup(service => service.Login(It.IsAny<UserData>())).Returns(new UserData());
-        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(NEW_EMAIL)))).Returns(new UserData(){Token ="Token"});
+        loginService.Setup(service => service.Login(It.IsAny<UserData>())).ReturnsAsync(new UserData());
+        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(NEW_EMAIL)))).ReturnsAsync(new UserData(){Token ="Token"});
         
         IRegisterService service = new RegisterService(repository.Object, loginService.Object);
         controller = new(service);
     }
 
     [TestMethod]
-    public void Register_NewEmail_ShouldReturnOk()
+    public async void Register_NewEmail_ShouldReturnOk()
     {
         UserRequest request = new()
         {
@@ -44,13 +44,13 @@ public class RegisterControllerTest
             Password = "Password123!"
         };
 
-        OkObjectResult response = (OkObjectResult)controller.Register(request);
+        OkObjectResult response = (OkObjectResult)await controller.Register(request);
         Assert.IsNotNull(response);
         Assert.AreEqual(HTTP_OK, response.StatusCode);
     }
     
     [TestMethod]
-    public void Register_ExistingEmail_ShouldReturnUnauthorized()
+    public async void Register_ExistingEmail_ShouldReturnUnauthorized()
     {
         UserRequest request = new()
         {
@@ -58,7 +58,7 @@ public class RegisterControllerTest
             Password = "password"
         };
 
-        UnauthorizedObjectResult response = (UnauthorizedObjectResult)controller.Register(request);
+        UnauthorizedObjectResult response = (UnauthorizedObjectResult)await controller.Register(request);
         Assert.IsNotNull(response);
         Assert.AreEqual(HTTP_UNAUTHORIZED, response.StatusCode);
     }

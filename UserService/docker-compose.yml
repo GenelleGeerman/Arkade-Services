@@ -1,12 +1,19 @@
 ﻿services:
   user-service:
-    image: tlc-quantum/user-service
+    image: galethus/user-service
     container_name: user-service
     ports:
-      - "5010:8080"
-      - "5011:443"
+      - "5000:8080"
+      - "5001:443"
     build:
       context: .
       dockerfile: UserService/Dockerfile
       tags:
-        - "tlc-quantum/user-service:test"
+        - "galethus/user-service:test"
+    networks: 
+      - arkade
+
+networks:
+  arkade:
+    name: arkade
+    driver: bridge

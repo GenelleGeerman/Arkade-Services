@@ -9,8 +9,10 @@ public class UserEntity
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public byte[] ProfilePicture {get; set;} = Array.Empty<byte>();
     public byte[] Salt { get; set; } = Array.Empty<byte>();
+    public string Instagram { get; set; }= string.Empty;
+    public string Twitter { get; set; }= string.Empty;
+    public string Website { get; set; }= string.Empty;
 
     public UserEntity() { }
 
@@ -21,8 +23,10 @@ public class UserEntity
         LastName = data.LastName;
         Email = data.Email;
         Password = data.Password;
-        ProfilePicture = data.ProfilePicture;
         Salt = data.Salt;
+        Instagram = data.Instagram;
+        Twitter = data.Twitter;
+        Website = data.Website;
     }
 
     public UserData GetUserData()
@@ -34,8 +38,10 @@ public class UserEntity
             LastName = LastName,
             Email = Email,
             Password = Password,
-            ProfilePicture = ProfilePicture,
-            Salt = Salt
+            Salt = Salt,
+            Instagram = Instagram,
+            Twitter = Twitter,
+            Website = Website
         };
     }
 }

@@ -8,7 +8,7 @@ public class RegisterService(IRegisterRepository repo, ILoginService login) : IR
     //Best practise for password length
     private const int MIN_PASSWORD_LENGTH = 8;
 
-    public UserData Register(UserData request)
+    public async Task<UserData> Register(UserData request)
     {
         if (request.Password.Length < MIN_PASSWORD_LENGTH) return new();
         string encryptedPass = EncryptionService.EncryptPassword(request.Password, out byte[] salt);
@@ -17,7 +17,7 @@ public class RegisterService(IRegisterRepository repo, ILoginService login) : IR
         user.Email = user.Email.ToLower();
         user.Password = encryptedPass;
         user.Salt = salt;
-        return repo.Register(user) ? login.Login(request) : new();
+        return repo.Register(user) ? await login.Login(request) : new();
     }
 
     public bool IsEmailExisting(UserData request)

@@ -4,5 +4,5 @@ namespace BusinessLayer.Interfaces;
 
 public interface ILoginService
 {
-    UserData Login(UserData request);
+    Task<UserData> Login(UserData request);
 }

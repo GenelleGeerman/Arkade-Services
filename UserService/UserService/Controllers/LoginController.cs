@@ -12,11 +12,13 @@ public class LoginController(ILoginService service) : ControllerBase
 {
     [HttpPost]
     [EnableCors("AllowAllPolicy")]
-    public IActionResult Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
+        Console.WriteLine("Hello");
+
         try
         {
-            UserData userData = service.Login(request.GetUser());
+            UserData userData = await service.Login(request.GetUser());
 
             if (string.IsNullOrEmpty(userData.Token)) return Unauthorized();
 

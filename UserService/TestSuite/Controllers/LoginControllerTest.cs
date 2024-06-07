@@ -21,17 +21,17 @@ public class LoginControllerTest
             Salt = salt
         };
         Mock<ILoginRepository> repository = new();
-        repository.Setup(p => p.GetUser(It.IsAny<UserData>())).Returns(new UserData());
-        repository.Setup(p => p.GetUser(It.Is<UserData>(u => u.Email.Equals("test@email.com")))).Returns(user);
+        repository.Setup(p => p.GetUser(It.IsAny<UserData>())).ReturnsAsync(new UserData());
+        repository.Setup(p => p.GetUser(It.Is<UserData>(u => u.Email.Equals("test@email.com")))).ReturnsAsync(user);
         Mock<IAuthorizationService> auth = new();
         auth.Setup(p => p.GenerateToken(It.IsAny<UserData>())).Returns("Token");
-        
+
         ILoginService service = new LoginService(repository.Object, auth.Object);
         controller = new(service);
     }
 
     [TestMethod]
-    public void Login_IncorrectEmail_ShouldFail()
+    public async void Login_IncorrectEmail_ShouldFail()
     {
         LoginRequest request = new()
         {
@@ -39,13 +39,13 @@ public class LoginControllerTest
             Password = "password"
         };
 
-        UnauthorizedResult response = (UnauthorizedResult)controller.Login(request);
+        UnauthorizedResult response = (UnauthorizedResult)await controller.Login(request);
         Assert.IsNotNull(response);
         Assert.AreEqual(HTTP_UNAUTHORIZED, response.StatusCode);
     }
 
     [TestMethod]
-    public void Login_UsingCorrectCredentials_ShouldPass()
+    public async void Login_UsingCorrectCredentials_ShouldPass()
     {
         LoginRequest request = new()
         {
@@ -53,13 +53,13 @@ public class LoginControllerTest
             Password = "password"
         };
 
-        OkObjectResult response = (OkObjectResult)controller.Login(request);
+        OkObjectResult response = (OkObjectResult)await controller.Login(request);
 
         Assert.AreEqual(HTTP_OK, response.StatusCode);
     }
 
     [TestMethod]
-    public void Login_UsingCorrectCredentialsTwice_ShouldPass()
+    public async void Login_UsingCorrectCredentialsTwice_ShouldPass()
     {
         LoginRequest request = new()
         {
@@ -67,9 +67,9 @@ public class LoginControllerTest
             Password = "password"
         };
 
-        ObjectResult response = (ObjectResult)controller.Login(request);
+        ObjectResult response = (ObjectResult)await controller.Login(request);
         Assert.AreEqual(HTTP_OK, response.StatusCode);
-        response = (ObjectResult)controller.Login(request);
+        response = (ObjectResult)await controller.Login(request);
         Assert.AreEqual(HTTP_OK, response.StatusCode);
     }
 }

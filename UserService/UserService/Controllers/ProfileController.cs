@@ -1,9 +1,10 @@
-using System.Linq.Expressions;
+using BusinessLayer.Interfaces;
+using BusinessLayer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using UserService.DTO;
-using BusinessLayer.Interfaces;
 using Microsoft.Extensions.Primitives;
+using UserService.DTO;
 
 namespace UserService.Controllers;
 
@@ -13,12 +14,42 @@ public class ProfileController(IProfileService service) : ControllerBase
 {
     [HttpGet]
     [EnableCors("AllowAllPolicy")]
-    public IActionResult GetProfile()
+    [Authorize]
+    public async Task<IActionResult> Get()
     {
         try
         {
-            Request.Headers.TryGetValue("Authorization", out StringValues token);
-            var data = service.Get(token);
+            if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
+                return Unauthorized("Authorization header missing");
+            Console.WriteLine(token);
+            string? tokenString = token.FirstOrDefault()?.Split(" ").Last();
+
+            if (string.IsNullOrEmpty(tokenString)) return Unauthorized("Invalid token or token is empty.");
+
+            UserData data = await service.Get(tokenString);
+            ProfileResponse response = new(data);
+            return Ok(response);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+
+    [HttpPut]
+    [EnableCors("AllowAllPolicy")]
+    public async Task<IActionResult> Update([FromBody] ProfileRequest request)
+    {
+        try
+        {
+            if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
+                return Unauthorized("Authorization header missing");
+
+            string? tokenString = token.FirstOrDefault()?.Split(" ").Last();
+
+            if (string.IsNullOrEmpty(tokenString)) return Unauthorized("Invalid token or token is empty.");
+
+            UserData data = await service.Update(request.GetUserData(), tokenString);
             ProfileResponse response = new(data);
             return Ok(response);
         }

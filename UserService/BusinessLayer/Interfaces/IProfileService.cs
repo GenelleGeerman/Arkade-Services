@@ -4,5 +4,7 @@ namespace BusinessLayer.Interfaces;
 
 public interface IProfileService
 {
-   UserData Get(string token);
+   Task<UserData> Get(string token);
+
+   Task<UserData> Update(UserData request, string tokenString);
 }

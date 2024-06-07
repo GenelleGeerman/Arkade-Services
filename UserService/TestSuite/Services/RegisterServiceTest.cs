@@ -19,13 +19,13 @@ public class RegisterServiceTest
         repository.Setup(repository => repository.Register(It.Is<UserData>(u => u.Email.Equals(CORRECT_EMAIL)))).Returns(true);
         repository.Setup(repository => repository.IsEmailExisting(It.Is<UserData>(u => u.Email.Equals(EXISTING_EMAIL)))).Returns(true);
         Mock<ILoginService> loginService = new();
-        loginService.Setup(service => service.Login(It.IsAny<UserData>())).Returns(new UserData());
-        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(CORRECT_EMAIL)))).Returns(new UserData(){Token ="Token"});
+        loginService.Setup(service => service.Login(It.IsAny<UserData>())).ReturnsAsync(new UserData());
+        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(CORRECT_EMAIL)))).ReturnsAsync(new UserData(){Token ="Token"});
         service = new(repository.Object,loginService.Object);
     }
 
     [TestMethod]
-    public void Register_CorrectCredentials_ReturnsToken()
+    public async void Register_CorrectCredentials_ReturnsToken()
     {
         //arrange
         UserData user = new()
@@ -34,13 +34,13 @@ public class RegisterServiceTest
             Password = "password"
         };
         //act
-        UserData response = service.Register(user);
+        UserData response = await service.Register(user);
         //assert
         Assert.IsTrue(response.Token == "Token");
     }
 
     [TestMethod]
-    public void Register_WrongCredentials_ReturnsEmptyTokenField()
+    public async void Register_WrongCredentials_ReturnsEmptyTokenField()
     {
         //arrange
         UserData user = new()
@@ -50,13 +50,13 @@ public class RegisterServiceTest
         };
 
         //act
-        UserData response = service.Register(user);
+        UserData response = await service.Register(user);
         //assert
         Assert.IsTrue(string.IsNullOrEmpty(response.Token));
     }
 
     [TestMethod]
-    public void Register_PasswordEqualsOrGreaterThan8Char_ReturnsToken()
+    public async void Register_PasswordEqualsOrGreaterThan8Char_ReturnsToken()
     {
         //arrange
         UserData user = new()
@@ -66,13 +66,13 @@ public class RegisterServiceTest
         };
 
         //act
-        UserData response = service.Register(user);
+        UserData response = await service.Register(user);
         //assert
         Assert.IsTrue(response.Token.Equals("Token"));
     }
 
     [TestMethod]
-    public void Register_PasswordBelow8Char_ReturnsEmptyTokenField()
+    public async void Register_PasswordBelow8Char_ReturnsEmptyTokenField()
     {
         //arrange
         UserData user = new()
@@ -82,7 +82,7 @@ public class RegisterServiceTest
         };
 
         //act
-        UserData response = service.Register(user);
+        UserData response = await  service.Register(user);
         //assert
         Assert.IsTrue(string.IsNullOrEmpty(response.Token));
     }

@@ -23,13 +23,14 @@ public class JsonRepository : ILoginRepository, IRegisterRepository, IProfileRep
             {
                 currentId = userEntity.Id + 1;
             }
+
             users.TryAdd(userEntity.Id, userEntity);
         }
 
         Console.WriteLine("JSON-Based Repository is Ready!.");
     }
 
-    public UserData GetUser(UserData userData)
+    public async Task<UserData> GetUser(UserData userData)
     {
         foreach (UserEntity u in users.Values)
         {
@@ -64,7 +65,7 @@ public class JsonRepository : ILoginRepository, IRegisterRepository, IProfileRep
         return users.Values.Any(user => user.Email == request.Email);
     }
 
-    public UserData Get(long userId)
+    public async Task<UserData> Get(long userId)
     {
         try
         {
@@ -75,5 +76,16 @@ public class JsonRepository : ILoginRepository, IRegisterRepository, IProfileRep
             Console.WriteLine("issue in repo");
             return new();
         }
+    }
+
+    public async Task<UserData> Update(UserData request)
+    {
+        UserEntity entity = new(request);
+        return entity.GetUserData();
+    }
+
+    public async Task<bool> Delete(long getId)
+    {
+        return users.Remove(getId);
     }
 }

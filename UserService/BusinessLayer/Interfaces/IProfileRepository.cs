@@ -4,5 +4,9 @@ namespace BusinessLayer.Interfaces;
 
 public interface IProfileRepository
 {
-    UserData Get(long userId);
+    Task<UserData> Get(long userId);
+
+    Task<UserData> Update(UserData request);
+
+    Task<bool> Delete(long getId);
 }

@@ -4,5 +4,5 @@ namespace BusinessLayer.Interfaces;
 
 public interface ILoginRepository
 {
-    UserData GetUser(UserData userData);
+    Task<UserData> GetUser(UserData userData);
 }

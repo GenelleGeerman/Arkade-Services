@@ -9,25 +9,21 @@ public class EncryptionService
     public static string EncryptPassword(string password, out byte[] salt)
     {
         salt = RandomNumberGenerator.GetBytes(KEY_SIZE);
-        byte[] hash = Hash(password, salt);
-        return Convert.ToHexString(hash);
+        return HashString(password, salt);
     }
 
     public static bool IsMatching(string encryptedPassword, string plainPassword, byte[] salt)
     {
-        byte[] hash = Hash(plainPassword, salt);
-        string password = Convert.ToHexString(hash);
-
+        string password = HashString(plainPassword, salt);
         return encryptedPassword.Equals(password);
     }
 
-    private static byte[] Hash(string password, byte[] salt)
+    private static string HashString(string password, byte[] salt)
     {
         byte[] combinedBytes = new byte[password.Length + salt.Length];
         Buffer.BlockCopy(password.ToArray(), 0, combinedBytes, 0, password.Length);
         Buffer.BlockCopy(salt, 0, combinedBytes, password.Length, salt.Length);
-
-        // Compute hash
-        return SHA256.HashData(combinedBytes);
+        byte[] hash = SHA256.HashData(combinedBytes);
+        return Convert.ToHexString(hash);
     }
 }

@@ -15,8 +15,8 @@ public class LoginServiceTest
         user.Salt = salt;
 
         repository = new();
-        repository.Setup(p => p.GetUser(It.IsAny<UserData>())).Returns(new UserData());
-        repository.Setup(p => p.GetUser(It.Is<UserData>(u => u.Email.Equals("test@email.com")))).Returns(user);
+        repository.Setup(p => p.GetUser(It.IsAny<UserData>())).ReturnsAsync(new UserData());
+        repository.Setup(p => p.GetUser(It.Is<UserData>(u => u.Email.Equals("test@email.com")))).ReturnsAsync(user);
         Mock<IAuthorizationService> auth = new();
         auth.Setup(p => p.GenerateToken(It.IsAny<UserData>())).Returns("Token");
 
@@ -24,7 +24,7 @@ public class LoginServiceTest
     }
 
     [TestMethod]
-    public void Login_WithValidCredentials_ShouldReturnTrue()
+    public async void Login_WithValidCredentials_ShouldReturnTrue()
     {
         //arrange
         UserData request = new();
@@ -32,7 +32,7 @@ public class LoginServiceTest
         request.Password = "password";
 
         //act
-        UserData userData = service.Login(request);
+        UserData userData = await service.Login(request);
 
         //assert
 
@@ -54,7 +54,7 @@ public class LoginServiceTest
     }
 
     [TestMethod]
-    public void LoginWithValidCredentials_ShouldHaveEmptyPasswordField()
+    public async void LoginWithValidCredentials_ShouldHaveEmptyPasswordField()
     {
         //arrange
         UserData request = new();
@@ -62,7 +62,7 @@ public class LoginServiceTest
         request.Password = "password";
 
         //act
-        UserData userData = service.Login(request);
+        UserData userData = await service.Login(request);
 
         //assert
 
@@ -70,7 +70,7 @@ public class LoginServiceTest
     }
 
     [TestMethod]
-    public void LoginWithInvalidEmail_ShouldReturnEmptyToken()
+    public async void LoginWithInvalidEmail_ShouldReturnEmptyToken()
     {
         //arrange
         UserData request = new();
@@ -78,7 +78,7 @@ public class LoginServiceTest
         request.Password = "password";
 
         //act
-        UserData userData = service.Login(request);
+        UserData userData = await service.Login(request);
 
         //assert
 
@@ -87,7 +87,7 @@ public class LoginServiceTest
     
     
     [TestMethod]
-    public void LoginWithCapitalEmail_ShouldReturnToken()
+    public async void LoginWithCapitalEmail_ShouldReturnToken()
     {
         //arrange
         UserData request = new()
@@ -97,7 +97,7 @@ public class LoginServiceTest
         };
 
         //act
-        UserData userData = service.Login(request);
+        UserData userData = await service.Login(request);
 
         //assert
 

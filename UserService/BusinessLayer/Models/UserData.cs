@@ -7,7 +7,6 @@ public class UserData
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public byte[] ProfilePicture {get;set;} = Array.Empty<byte>();
     public byte[] Salt { get; set; } = Array.Empty<byte>();
     public string Token { get; set; } = string.Empty;
     public string Instagram { get; set; }= string.Empty;

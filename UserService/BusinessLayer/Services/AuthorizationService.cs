@@ -1,8 +1,8 @@
+using System.Text;
+using BusinessLayer.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using BusinessLayer.Interfaces;
-using BusinessLayer.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,7 +19,7 @@ public class AuthorizationService(IConfiguration config) : IAuthorizationService
         var claims = new[]
         {
             new Claim("id", userInfo.Id.ToString()),
-            new Claim("email", userInfo.Email),
+            new Claim(ClaimTypes.Email, userInfo.Email),
             new Claim("firstName", userInfo.FirstName),
             new Claim("lastName", userInfo.LastName)
             // Add additional claims as needed
@@ -35,6 +35,35 @@ public class AuthorizationService(IConfiguration config) : IAuthorizationService
 
     public long GetId(string token)
     {
+        ClaimsPrincipal principal = GetPrincipal(token);
+        string? value = principal.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+
+        try
+        {
+            return value != null ? long.Parse(value) : throw new NullReferenceException("AUTH ISSUE");
+        }
+        catch
+        {
+            throw new UnauthorizedAccessException(value);
+        }
+    }
+
+    public string GetEmail(string token)
+    {
+        ClaimsPrincipal principal = GetPrincipal(token);
+        string? value = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        try
+        {
+            return value != null ? value.ToString() : throw new NullReferenceException("AUTH ISSUE");
+        }
+        catch(Exception e)
+        {
+            throw new UnauthorizedAccessException(e.Message);
+        }
+    }
+
+    private ClaimsPrincipal GetPrincipal(string token)
+    {
         JwtSecurityTokenHandler tokenHandler = new();
         byte[] key = Encoding.ASCII.GetBytes(config["Jwt:Key"]!);
 
@@ -49,21 +78,6 @@ public class AuthorizationService(IConfiguration config) : IAuthorizationService
             ClockSkew = TimeSpan.Zero // You can adjust this value
         };
 
-            ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-
-            foreach (Claim c in principal.Claims)
-            {
-                Console.WriteLine(c.Type+": " + c.Value);
-                Console.WriteLine(c.ValueType+": " + c.Value);
-            }
-            string? value = principal.Claims.FirstOrDefault(c => c.Type == "id").Value;
-        try
-        {
-            return value != null ? long.Parse(value) : throw new NullReferenceException("AUTH ISSUE");
-        }
-        catch
-        {
-            throw new UnauthorizedAccessException(value);
-        }
+        return tokenHandler.ValidateToken(token, validationParameters, out _);
     }
 }

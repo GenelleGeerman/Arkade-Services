@@ -10,7 +10,6 @@ public class UserRequest
     public string Password { get; init; } = string.Empty;
     public string FirstName { get; init; } = string.Empty;
     public string LastName { get; init; } = string.Empty;
-    public string ProfilePicture { get; init; } = string.Empty;
 
     public UserData GetUser()
     {
@@ -19,20 +18,7 @@ public class UserRequest
             Email = Email,
             Password = Password,
             FirstName = FirstName,
-            LastName = LastName,
-            ProfilePicture = GetPicture()
+            LastName = LastName
         };
-    }
-
-    private byte[] GetPicture()
-    {
-        try
-        {
-            return Convert.FromBase64String(ProfilePicture);
-        }
-        catch
-        {
-            return Array.Empty<byte>();
-        }
     }
 }
