@@ -6,12 +6,12 @@ on:
       - main
       - development
       - config/ci
-      
+
 defaults:
   run:
     shell: bash
-    working-directory: ./UserService
-    
+    working-directory: ./GameService
+
 jobs:
   build:
     runs-on: ubuntu-latest
