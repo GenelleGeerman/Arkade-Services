@@ -48,9 +48,12 @@ jobs:
   test-vars:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: echo test
         run: |
-          echo $CI_REGISTRY_USER
+          echo "$CI_REGISTRY_USER"
 
   create-image:
     needs: test
