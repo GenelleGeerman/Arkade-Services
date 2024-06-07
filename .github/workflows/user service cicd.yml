@@ -1,4 +1,4 @@
-name: User Service CI
+name: User Service CI/CD
 
 on:
   push:
@@ -45,7 +45,15 @@ jobs:
       - name: Test
         run: dotnet test --no-restore
 
+  test-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo test
+        run: |
+          echo $CI_REGISTRY_USER
+
   create-image:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
