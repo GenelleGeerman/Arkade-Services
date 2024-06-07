@@ -53,7 +53,7 @@ jobs:
 
       - name: echo test
         run: |
-          echo "$CI_REGISTRY_USER"
+          echo ${{ env.CI_REGISTRY_USER }}
 
   create-image:
     needs: test
@@ -68,15 +68,15 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: $CI_REGISTRY_USER
+          username: ${{ env.CI_REGISTRY_USER}}
           password: ${{ secrets.CI_REGISTRY_PASSWORD }}
 
       - name: Build and push Docker image
         run: |
           echo "Creating Image"
-          docker build -t $USER_SERVICE_NAME .
-          docker push $USER_SERVICE_NAME
-          docker rmi $USER_SERVICE_NAME
+          docker build -t ${{ USER_SERVICE_NAME }} .
+          docker push ${{ USER_SERVICE_NAME }}
+          docker rmi ${{ USER_SERVICE_NAME }}
 
   deploy-to-azure:
     runs-on: ubuntu-latest
@@ -90,13 +90,13 @@ jobs:
       - name: Login to Azure
         run: |
           echo "Logging into Azure..."
-          az login --service-principal -u "${{ secrets.AZURE_APP_ID }}" -p "${{ secrets.AZURE_PASSWORD }}" --tenant "${{ secrets.AZURE_TENANT_ID }}"
+          az login --service-principal -u ${{ secrets.AZURE_APP_ID }} -p ${{ secrets.AZURE_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
           az account set --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
       - name: Get AKS credentials
         run: |
           echo "Getting AKS credentials..."
-          az aks get-credentials --resource-group "$AKS_RESOURCE_GROUP" --name "$AKS_CLUSTER_NAME" --overwrite-existing
+          az aks get-credentials --resource-group ${{ env.AKS_RESOURCE_GROUP}} --name ${{ env.AKS_CLUSTER_NAME }} --overwrite-existing
 
       - name: Deploy to AKS
         run: |
