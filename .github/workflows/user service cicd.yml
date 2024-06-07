@@ -74,9 +74,9 @@ jobs:
       - name: Build and push Docker image
         run: |
           echo "Creating Image"
-          docker build -t ${{ USER_SERVICE_NAME }} .
-          docker push ${{ USER_SERVICE_NAME }}
-          docker rmi ${{ USER_SERVICE_NAME }}
+          docker build -t ${{ env.USER_SERVICE_NAME }} .
+          docker push ${{  env.USER_SERVICE_NAME }}
+          docker rmi ${{  env.USER_SERVICE_NAME }}
 
   deploy-to-azure:
     runs-on: ubuntu-latest
