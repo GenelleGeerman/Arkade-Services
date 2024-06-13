@@ -46,7 +46,7 @@ jobs:
   #       run: dotnet test --no-restore
 
   create-image:
-    needs: test
+    #  needs: test
     runs-on: ubuntu-latest
 
     steps:
