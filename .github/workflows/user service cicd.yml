@@ -51,17 +51,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Debug Environment Variables
         run: |
           echo "CI_REGISTRY_USER: ${{ secrets.CI_REGISTRY_USER }}"
           echo "USER_SERVICE_NAME: ${{ secrets.USER_SERVICE_NAME }}"
 
-      - name: Login to DockerHub Registry
-        env:
-          DOCKERHUB_PASSWORD: ${{ secrets.CI_REGISTRY_PASSWORD }}
-        run: echo "$DOCKERHUB_PASSWORD" | docker login --username "${{ env.CI_REGISTRY_USER }}" --password-stdin
+      - name: Login to Docker Hub
+        uses: ./
+        with:
+          username: ${{ env.CI_REGISTRY_USER }}
+          password: ${{ secrets.CI_REGISTRY_PASSWORD }}
 
       - name: Build and push Docker image
         env:
