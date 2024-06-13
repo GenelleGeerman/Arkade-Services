@@ -1,11 +1,14 @@
 using System.Text;
+using GameAPI.Services;
+using GameAPI.Steam;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddScoped<SteamAPI>();
+builder.Services.AddScoped<GameService>();
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Services.AddControllers();
 
@@ -15,8 +18,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-        name: "UserPolicy"
-        , configurePolicy: policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
+        "UserPolicy"
+        , policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
