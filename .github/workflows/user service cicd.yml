@@ -55,7 +55,7 @@ jobs:
 
       - name: Debug Environment Variables
         run: |
-          echo "CI_REGISTRY_USER: ${{ env.CI_REGISTRY_USER }}"
+          echo "CI_REGISTRY_USER: ${{ secrets.CI_REGISTRY_USER }}"
           echo "USER_SERVICE_NAME: ${{ secrets.USER_SERVICE_NAME }}"
 
       - name: Login to DockerHub Registry
