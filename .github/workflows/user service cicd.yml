@@ -48,12 +48,14 @@ jobs:
   create-image:
     needs: test
     runs-on: ubuntu-latest
+    env:
+      DOCKER_TOKEN: ${{ secrets.CI_REGISTRY_PASSWORD }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Login to DockerHub Registry
-        run: echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login docker.io -u ${{ env.CI_REGISTRY_USER }} --password-stdin
+        run: echo $DOCKER_TOKEN | docker login docker.io -u ${{ env.CI_REGISTRY_USER }} --password-stdin
 
       - name: Build and push Docker image
         run: |
