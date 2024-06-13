@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Debug Environment Variables
         run: |
@@ -59,7 +59,7 @@ jobs:
           echo "USER_SERVICE_NAME: ${{ secrets.USER_SERVICE_NAME }}"
 
       - name: Login to Docker Hub
-        uses: ./
+        uses: ./UserService
         with:
           username: ${{ env.CI_REGISTRY_USER }}
           password: ${{ secrets.CI_REGISTRY_PASSWORD }}
