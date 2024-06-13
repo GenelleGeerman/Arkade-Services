@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Login to DockerHub Registry
-        run: docker login -u ${{ env.CI_REGISTRY_USER }} -p ${{ secrets.CI_REGISTRY_PASSWORD}} docker.io
+        run: echo ${{ secrets.CI_REGISTRY_PASSWORD}} | docker login -u ${{ env.CI_REGISTRY_USER }} --password-stdin  docker.io
 
       - name: Build and push Docker image
         run: |
