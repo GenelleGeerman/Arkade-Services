@@ -1,35 +1,26 @@
-﻿using System.Text;
+using System.Text;
 using BusinessLayer.Interfaces;
 using BusinessLayer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PersistenceLayer.Repositories;
-using RabbitMQ.Client;
+using RepositoryLayer;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
 builder.Configuration.AddJsonFile("appsettings.json");
-builder.Services.AddDbContext<UserContext>(options =>
+builder.Services.AddDbContext<ReviewContext>(options =>
 {
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
 });
-// Add services to the container.
-builder.Services.AddTransient<ILoginRepository, LoginRepository>();
-builder.Services.AddTransient<IRegisterRepository, RegisterRepository>();
-builder.Services.AddTransient<IProfileRepository, ProfileRepository>();
-builder.Services.AddTransient<ILoginService, LoginService>();
-builder.Services.AddTransient<IRegisterService, RegisterService>();
-builder.Services.AddTransient<IAuthorizationService, AuthorizationService>();
-builder.Services.AddTransient<IProfileService, ProfileService>();
-builder.Services.AddScoped<MessageService>();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddControllers();
+builder.Services.AddSingleton<IMessageService,MessageService>();
 builder.Services.AddSwaggerGen(c =>
 {
     // Add JWT token authentication
@@ -63,8 +54,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllPolicy"
         , policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 });
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new()
         {
@@ -79,13 +70,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         };
     });
 
-builder.Services.AddHealthChecks();
-
 WebApplication app = builder.Build();
 
-app.UseHealthChecks("/health");
+app.MapHealthChecks("/health");
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

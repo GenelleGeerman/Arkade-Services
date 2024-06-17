@@ -20,4 +20,11 @@ public class UserData
         copy.Salt = Array.Empty<byte>();
         return copy;
     }
+
+    public UserData SafeCopy()
+    {
+        UserData data = Copy();
+        data.Email = string.Empty;
+        return data;
+    }
 }
