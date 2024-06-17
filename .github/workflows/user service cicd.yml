@@ -82,6 +82,9 @@ jobs:
           echo "Getting AKS credentials..."
           az aks get-credentials --resource-group ${{ vars.AKS_RESOURCE_GROUP}} --name ${{ vars.AKS_CLUSTER_NAME }} --overwrite-existing
 
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
       - name: Deploy to AKS
         run: |
           echo "Deploying to AKS..."
