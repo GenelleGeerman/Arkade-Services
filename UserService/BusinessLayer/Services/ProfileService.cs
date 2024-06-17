@@ -20,7 +20,6 @@ namespace BusinessLayer.Services
             this.profileRepository = profileRepository;
             this.auth = auth;
             this.msgService = msgService;
-            SubscribeToUserRequests();
         }
 
         public async Task<UserData> Get(string token)
