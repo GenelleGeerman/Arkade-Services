@@ -4,14 +4,11 @@ using Ocelot.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Load configuration
-//builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
-
 // Register services
-//builder.Services.AddOcelot(builder.Configuration);
-
+builder.Services.AddOcelot(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
