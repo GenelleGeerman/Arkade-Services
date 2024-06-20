@@ -1,36 +1,12 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/game/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5001
-        }
-      ],
-      "UpstreamPathTemplate": "/game/{everything}",
-      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
-    },
-    {
-      "DownstreamPathTemplate": "/review/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5230
-        }
-      ],
-      "UpstreamPathTemplate": "/review/{everything}",
-      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
-    },
-    {
       "DownstreamPathTemplate": "/register/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5274
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/register/{everything}",
@@ -42,7 +18,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5274
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/profile/{everything}",
@@ -54,14 +30,38 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5274
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/login/{everything}",
       "UpstreamHttpMethod": ["POST"]
+    },
+    {
+      "DownstreamPathTemplate": "/review/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/review/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
+    },
+    {
+      "DownstreamPathTemplate": "/game/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5003
+        }
+      ],
+      "UpstreamPathTemplate": "/game/{everything}",
+      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "http://arkade.germanywestcentral.cloudapp.azure.com/"
   }
 }

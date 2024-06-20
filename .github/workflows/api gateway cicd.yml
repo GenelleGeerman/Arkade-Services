@@ -1,4 +1,4 @@
-name: Game Service CI/CD
+name: API Gateway CI/CD
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./GameService
+    working-directory: ./APIGateway
 
 jobs:
   build:
@@ -58,9 +58,9 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ vars.GAME_SERVICE_NAME }} .
-          docker push ${{ vars.GAME_SERVICE_NAME }}
-          docker rmi ${{ vars.GAME_SERVICE_NAME }}
+          docker build -t ${{ vars.API_GATEWAY_NAME }} .
+          docker push ${{ vars.API_GATEWAY_NAME }}
+          docker rmi ${{ vars.API_GATEWAY_NAME }}
 
   deploy-to-azure:
     runs-on: ubuntu-latest
