@@ -1,15 +1,15 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/register/{everything}",
+      "DownstreamPathTemplate": "/Register/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5001
+          "Host": "user-service",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/register/{everything}",
+      "UpstreamPathTemplate": "/Register/{everything}",
       "UpstreamHttpMethod": ["POST"]
     },
     {
@@ -17,8 +17,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5001
+          "Host": "user-service",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/profile/{everything}",
@@ -29,8 +29,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5001
+          "Host": "user-service",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/login/{everything}",
@@ -41,8 +41,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5002
+          "Host": "review-service",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/review/{everything}",
@@ -53,15 +53,12 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 5003
+          "Host": "game-service",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/game/{everything}",
       "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
     }
-  ],
-  "GlobalConfiguration": {
-    "BaseUrl": "http://arkade.germanywestcentral.cloudapp.azure.com/"
-  }
+  ]
 }

@@ -87,7 +87,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: arkade.germanywestcentral.cloudapp.azure.com
+    - host: arkade-api.germanywestcentral.cloudapp.azure.com
       http:
         paths:
           - path: /
