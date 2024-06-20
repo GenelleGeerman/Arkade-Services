@@ -15,4 +15,6 @@ public interface IReviewService
     Task<Review[]> GetByUserId(int userId);
 
     Task<Review> Get(int id);
+
+    Task DeleteAllByUserId(long userId);
 }

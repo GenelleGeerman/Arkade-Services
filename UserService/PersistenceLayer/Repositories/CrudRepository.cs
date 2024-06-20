@@ -22,6 +22,7 @@ public class CrudRepository<T> : ICrudRepository<T> where T : class
     public T GetById(object id)
     {
         return Context.Set<T>().Find(id);
+        
     }
 
     public List<T> GetAll()

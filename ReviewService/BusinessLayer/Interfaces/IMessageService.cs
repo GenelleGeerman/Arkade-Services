@@ -4,5 +4,6 @@ public interface IMessageService
 {
     void Publish<T>(string exchangeName, string routingKey, T data);
 
-    void Subscribe<T>(string exchangeName, string queueName, string routingKey, Action<T> handler);
+    string Subscribe<T>(string exchangeName, string queueName, string routingKey, Action<T> handler);
+    void UnSubscribe(string tag);
 }

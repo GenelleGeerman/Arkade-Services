@@ -15,4 +15,6 @@ public interface IReviewRepository
     Task<Review[]> GetByGameId(int gameId);
 
     Task<Review[]> GetByUserId(int id);
+
+    Task DeleteAllByUserId(long userId);
 }

@@ -12,30 +12,19 @@ public class MessageHost(IServiceProvider serviceProvider) : IHostedService
     {
         var scope = serviceProvider.CreateScope();
         var messageService = scope.ServiceProvider.GetRequiredService<MessageService>();
-        var profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
-        messageService.Subscribe<MessageData>("Profile", "Profile", "Profile",
-            async (message) => await HandleProfile(messageService, message));
+        messageService.Subscribe<MessageData>("DeleteUser", "DeleteUser", "DeleteUser",
+            async (message) => await HandleDeletion(messageService, message));
         return Task.CompletedTask;
     }
 
-    private async Task HandleProfile(MessageService messageService, MessageData message)
+    private async Task HandleDeletion(MessageService messageService, MessageData message)
     {
         using (IServiceScope scope = serviceProvider.CreateScope())
         {
-            IProfileService profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
-
+            IReviewService reviewService = scope.ServiceProvider.GetRequiredService<IReviewService>();
             try
             {
-                Console.WriteLine("Processing profile message");
-                var user = await profileService.GetProfile(message.UserId);
-                MessageData data = new()
-                {
-                    ExchangeName = "ProfileResponse",
-                    RoutingKey = "ProfileResponse",
-                    QueueName = "ProfileResponse",
-                    Data = JsonSerializer.Serialize(user)
-                };
-                messageService.Publish(data.ExchangeName, data.RoutingKey,data.QueueName, data);
+                reviewService.DeleteAllByUserId(message.UserId);
             }
             catch (Exception ex)
             {

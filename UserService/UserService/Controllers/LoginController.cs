@@ -14,8 +14,6 @@ public class LoginController(ILoginService service) : ControllerBase
     [EnableCors("AllowAllPolicy")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        Console.WriteLine("Hello");
-
         try
         {
             UserData userData = await service.Login(request.GetUser());

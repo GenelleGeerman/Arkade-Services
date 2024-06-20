@@ -15,7 +15,8 @@ namespace BusinessLayer.Services
         private readonly IAuthorizationService auth;
         private readonly MessageService msgService;
 
-        public ProfileService(IProfileRepository profileRepository, IAuthorizationService auth, MessageService msgService)
+        public ProfileService(IProfileRepository profileRepository, IAuthorizationService auth,
+            MessageService msgService)
         {
             this.profileRepository = profileRepository;
             this.auth = auth;
@@ -30,10 +31,10 @@ namespace BusinessLayer.Services
 
         public async Task<UserData> GetProfile(long id)
         {
-           UserData unsafeUser = await profileRepository.Get(id);
-           return unsafeUser.SafeCopy();
+            UserData unsafeUser = await profileRepository.Get(id);
+            return unsafeUser.SafeCopy();
         }
-        
+
         public async Task<UserData> Update(UserData request, string token)
         {
             long id = auth.GetId(token);
@@ -46,13 +47,15 @@ namespace BusinessLayer.Services
 
         public async Task<bool> Delete(string token)
         {
-            return await profileRepository.Delete(auth.GetId(token));
+            long id = auth.GetId(token);
+            PropagateDeletion(id);
+            return await profileRepository.Delete(id);
         }
 
-        private class UserRequest
+        private void PropagateDeletion(long id)
         {
-            public int UserId { get; set; }
-            public string CorrelationId { get; set; }
+            MessageData data = MessageFactory.GetDeleteMessage(id);
+            msgService.Publish(data.ExchangeName, data.RoutingKey, data.QueueName, data);
         }
     }
 }

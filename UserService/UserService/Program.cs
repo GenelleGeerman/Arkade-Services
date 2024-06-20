@@ -16,6 +16,7 @@ builder.Services.AddDbContext<UserContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
 });
+
 // Add services to the container.
 builder.Services.AddTransient<ILoginRepository, LoginRepository>();
 builder.Services.AddTransient<IRegisterRepository, RegisterRepository>();
@@ -24,7 +25,8 @@ builder.Services.AddTransient<ILoginService, LoginService>();
 builder.Services.AddTransient<IRegisterService, RegisterService>();
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>();
 builder.Services.AddTransient<IProfileService, ProfileService>();
-builder.Services.AddScoped<MessageService>();
+builder.Services.AddSingleton<MessageService>();
+builder.Services.AddHostedService<MessageHost>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
@@ -63,7 +65,6 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllPolicy"
         , policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 });
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new()

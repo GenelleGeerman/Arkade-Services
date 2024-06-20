@@ -38,7 +38,7 @@ public class MessageService : IMessageService
         channel.BasicPublish(exchangeName, routingKey, null, body);
     }
 
-    public void Subscribe<T>(string exchangeName, string queueName, string routingKey, Action<T> handler)
+    public string Subscribe<T>(string exchangeName, string queueName, string routingKey, Action<T> handler)
     {
         channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
         channel.QueueDeclare(queueName, true, false, false, null);
@@ -51,13 +51,15 @@ public class MessageService : IMessageService
             var receivedMessage = Encoding.UTF8.GetString(body);
             Console.WriteLine(receivedMessage);
 
-            // Deserialize the message using System.Text.Json
             var message = JsonSerializer.Deserialize<T>(receivedMessage);
-
-            // Invoke the handler with the deserialized message
             handler(message);
         };
 
-        channel.BasicConsume(queueName, false, consumer);
+        return channel.BasicConsume(queueName, true, consumer);
+    }
+
+    public void UnSubscribe(string tag)
+    {
+        channel.BasicCancel(tag);
     }
 }

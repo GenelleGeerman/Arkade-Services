@@ -50,9 +50,18 @@ public class ReviewRepository : IReviewRepository
             .ToArrayAsync();
     }
 
+    public Task DeleteAllByUserId(long userId)
+    {
+        var entities = context.Reviews.Where(c => c.UserId == userId).ToList();
+        context.Reviews.RemoveRange(entities);
+        context.SaveChanges();
+        return Task.CompletedTask;
+    }
+
+
     public async Task<bool> Delete(int id)
     {
-        ReviewEntity entity = await context.Set<ReviewEntity>().FindAsync(id);
+        ReviewEntity? entity = await context.Set<ReviewEntity>().FindAsync(id);
         if (entity == null) return false;
         context.Set<ReviewEntity>().Remove(entity);
         return await context.SaveChangesAsync() > 0;

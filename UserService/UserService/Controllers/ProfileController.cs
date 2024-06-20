@@ -35,6 +35,22 @@ public class ProfileController(IProfileService service) : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
+    
+    [HttpGet("{id}")]
+    [EnableCors("AllowAllPolicy")]
+    public async Task<IActionResult> Get(long id)
+    {
+        try
+        {
+            UserData data = await service.GetProfile(id);
+            ProfileResponse response = new(data);
+            return Ok(response);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
 
     [HttpPut]
     [EnableCors("AllowAllPolicy")]
@@ -56,6 +72,30 @@ public class ProfileController(IProfileService service) : ControllerBase
         catch (Exception e)
         {
             return StatusCode(500, e.Message);
+        }
+    }
+
+    [HttpDelete]
+    [Authorize]
+    public async Task<IActionResult> Delete()
+    {
+        try
+        { 
+            if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
+                return Unauthorized("Authorization header missing");
+
+            string? tokenString = token.FirstOrDefault()?.Split(" ").Last();
+
+            if (string.IsNullOrEmpty(tokenString)) return Unauthorized("Invalid token or token is empty.");
+            bool isDeleted = await service.Delete(tokenString);
+
+            if (!isDeleted) return NotFound();
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
 }

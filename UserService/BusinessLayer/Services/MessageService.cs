@@ -8,42 +8,43 @@ namespace BusinessLayer.Services;
 
 public class MessageService
 {
-    private readonly IConfiguration _configuration;
-    private readonly IConnection _connection;
-    private IModel _channel;
+    private readonly IConfiguration configuration;
+    private readonly IConnection connection;
+    private IModel channel;
 
     public MessageService(IConfiguration configuration)
     {
-        _configuration = configuration;
-        _connection = Connect();
-        _channel = _connection.CreateModel();
+        this.configuration = configuration;
+        connection = Connect();
+        channel = connection.CreateModel();
     }
 
     public IConnection Connect()
     {
         var factory = new ConnectionFactory
         {
-            Uri = new Uri(_configuration.GetConnectionString("RabbitMQContext"))
+            Uri = new Uri(configuration.GetConnectionString("RabbitMQContext"))
         };
         return factory.CreateConnection();
     }
 
-    public void Publish<T>(string exchangeName, string routingKey, T data, IBasicProperties props = null)
+    public void Publish<T>(string exchangeName, string routingKey, string queueName, T data, IBasicProperties props = null)
     {
-        _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
+        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
+        channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
         var jsonMessage = JsonSerializer.Serialize(data);
         var body = Encoding.UTF8.GetBytes(jsonMessage);
-        _channel.BasicPublish(exchange: exchangeName, routingKey: routingKey,
+        channel.BasicPublish(exchange: exchangeName, routingKey: routingKey,
             basicProperties: props, body: body);
     }
 
     public void Subscribe<T>(string exchangeName, string queueName, string routingKey, Action<T> handler)
     {
-        _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
-        _channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-        _channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
+        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
+        channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
 
-        var consumer = new EventingBasicConsumer(_channel);
+        var consumer = new EventingBasicConsumer(channel);
         consumer.Received += (model, ea) =>
         {
             var body = ea.Body.ToArray();
@@ -57,11 +58,11 @@ public class MessageService
             handler(message);
         };
 
-        _channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+        channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
     }
 
     public IBasicProperties CreateBasicProperties()
     {
-        return _channel.CreateBasicProperties();
+        return channel.CreateBasicProperties();
     }
 }

@@ -1,8 +1,11 @@
 // ReviewService.cs
+
 using BusinessLayer.Interfaces;
 using BusinessLayer.Models;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace BusinessLayer.Services
 {
@@ -37,24 +40,31 @@ namespace BusinessLayer.Services
         public async Task<Review> Get(int id)
         {
             Review review = await repository.Get(id);
+            int userId = review.UserId;
 
-            var userId = review.UserId;
+            Console.WriteLine("Sending Message");
 
-            var tcs = new TaskCompletionSource<string>();
-
-            // Subscribe to the response queue
-            msgService.Subscribe<string>("UserExchange", "reviewServiceQueue", $"user.response.{userId}", jsonResponse =>
-            {
-                tcs.SetResult(jsonResponse);
-            });
-
-            // Publish the request to the user service
-            msgService.Publish("UserExchange", "user.request", new { UserId = userId });
-
-            // Wait for the user service to respond
-            var userJsonResponse = await tcs.Task;
-            review.User = userJsonResponse;
+            review.User = await GetUser(userId);
             return review;
+        }
+
+        public async Task DeleteAllByUserId(long userId)
+        {
+            await repository.DeleteAllByUserId(userId);
+        }
+
+        private async Task<string> GetUser(int userId)
+        {
+            var tcs = new TaskCompletionSource<MessageData>();
+
+            string tag = msgService.Subscribe<MessageData>("ProfileResponse", "ProfileResponse", "ProfileResponse",
+                (message) => { tcs.SetResult(message); });
+            MessageData data = MessageFactory.GetProfileMessage(userId);
+            msgService.Publish(data.ExchangeName, data.RoutingKey, data);
+
+            MessageData userMessage = await tcs.Task;
+            msgService.UnSubscribe(tag);
+            return userMessage.Data;
         }
     }
 }

@@ -9,4 +9,6 @@ public interface IProfileService
    Task<UserData> Update(UserData request, string tokenString);
 
    Task<UserData> GetProfile(long id);
+
+   Task<bool> Delete(string token);
 }
