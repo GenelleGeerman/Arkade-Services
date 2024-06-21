@@ -29,10 +29,7 @@ if (builder.Environment.IsProduction())
     {
         options.ListenAnyIP(443, listenOptions =>
         {
-            var passwordFilePath = "/etc/tls/tls.key";
-            var password = File.ReadAllText(passwordFilePath).Trim();
-
-            listenOptions.UseHttps("/etc/tls/tls.pfx", password);
+            listenOptions.UseHttps("/etc/tls/certificate.pfx");
         });
     });
     var rabbitMqConnString = builder.Configuration["RabbitMQContext"];
