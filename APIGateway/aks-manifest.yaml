@@ -172,11 +172,10 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod # Replace with your issuer name if different
 spec:
   tls:
-    - hosts:
-        - your-domain.example.com # Replace with your domain
-      secretName: api-gateway-tls # Secret name for TLS certificate
+    - hosts: arkade-api.germanywestcentral.cloudapp.azure.com # Replace with your domain
+      secretName: tls-secret # Secret name for TLS certificate
   rules:
-    - host: your-domain.example.com # Replace with your domain
+    - host: arkade-api.germanywestcentral.cloudapp.azure.com # Replace with your domain
       http:
         paths:
           - path: /
