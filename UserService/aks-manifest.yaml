@@ -18,7 +18,7 @@ spec:
         - name: user-service
           image: galethus/user-service:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 443
               name: user-service
           resources:
             requests:
@@ -27,6 +27,15 @@ spec:
             limits:
               cpu: 1000m
               memory: 512Mi
+          volumeMounts:
+            - name: tls-certs
+              mountPath: "/etc/ssl/certs"
+              readOnly: true
+      volumes:
+        - name: tls-certs
+          secret:
+            secretName: tls-secret # Ensure this matches your Secret's name
+
 ---
 apiVersion: v1
 kind: Service
@@ -34,7 +43,19 @@ metadata:
   name: user-service
 spec:
   ports:
-    - port: 80
-      targetPort: 8080
+    - port: 443
+      targetPort: 443
   selector:
     app: user-service
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tls-secret
+type: kubernetes.io/tls
+data:
+  tls.crt: |-
+    $(cat certs/cert.base64)
+  tls.key: |-
+    $(cat certs/key.base64)

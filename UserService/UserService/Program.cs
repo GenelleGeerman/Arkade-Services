@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Azure.Identity;
 using BusinessLayer.Interfaces;
 using BusinessLayer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,11 +11,28 @@ using RabbitMQ.Client;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.json");
+builder.Configuration.AddJsonFile(builder.Environment.IsProduction()
+    ? "appsettings.json"
+    : "appsettings.Development.json");
+
+// Configure Azure Key Vault integration
+var vault = builder.Configuration["AzureKeyVault:Vault"];
+var vaultUri = new Uri($"https://{vault}.vault.azure.net/");
+builder.Configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
+
+// Retrieve connection string from Key Vault
+var connString = builder.Configuration["userdbConn"];
+
+if (builder.Environment.IsProduction())
+{
+    var rabbitMqConnString = builder.Configuration["RabbitMQContext"];
+    builder.Configuration["ConnectionStrings:RabbitMQContext"] = rabbitMqConnString;
+}
+
+Console.WriteLine(builder.Configuration.GetConnectionString("RabbitMQContext"));
 builder.Services.AddDbContext<UserContext>(options =>
 {
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(connString, ServerVersion.AutoDetect(connString));
 });
 
 // Add services to the container.
@@ -29,6 +47,9 @@ builder.Services.AddSingleton<MessageService>();
 builder.Services.AddHostedService<MessageHost>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
+
+
+builder.WebHost.UseUrls("https://localhost:443");
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -66,19 +87,19 @@ builder.Services.AddCors(options =>
         , policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new()
     {
-        options.TokenValidationParameters = new()
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty))
-        };
-    });
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtIssuer"],
+        ValidAudience = builder.Configuration["JwtIssuer"],
+        IssuerSigningKey =
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"] ?? string.Empty))
+    };
+});
 
 builder.Services.AddHealthChecks();
 
