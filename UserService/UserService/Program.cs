@@ -15,13 +15,6 @@ builder.Configuration.AddJsonFile(builder.Environment.IsProduction()
     ? "appsettings.json"
     : "appsettings.Development.json");
 
-builder.WebHost.UseKestrel(options =>
-{
-    options.ListenAnyIP(443, listenOptions =>
-    {
-        listenOptions.UseHttps("/etc/tls/tls.crt", "/etc/tls/tls.key");
-    });
-});
 // Configure Azure Key Vault integration
 var vault = builder.Configuration["AzureKeyVault:Vault"];
 var vaultUri = new Uri($"https://{vault}.vault.azure.net/");
@@ -32,6 +25,16 @@ var connString = builder.Configuration["userdbConn"];
 
 if (builder.Environment.IsProduction())
 {
+    builder.WebHost.UseKestrel(options =>
+    {
+        options.ListenAnyIP(443, listenOptions =>
+        {
+            var passwordFilePath = "/etc/tls/tls.key";
+            var password = File.ReadAllText(passwordFilePath).Trim();
+
+            listenOptions.UseHttps("/etc/tls/tls.pfx", password);
+        });
+    });
     var rabbitMqConnString = builder.Configuration["RabbitMQContext"];
     builder.Configuration["ConnectionStrings:RabbitMQContext"] = rabbitMqConnString;
 }
