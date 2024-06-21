@@ -172,7 +172,8 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod # Replace with your issuer name if different
 spec:
   tls:
-    - hosts: arkade-api.germanywestcentral.cloudapp.azure.com # Replace with your domain
+    - hosts:
+        - arkade-api.germanywestcentral.cloudapp.azure.com # Replace with your domain
       secretName: tls-secret # Secret name for TLS certificate
   rules:
     - host: arkade-api.germanywestcentral.cloudapp.azure.com # Replace with your domain
