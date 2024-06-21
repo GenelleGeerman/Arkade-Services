@@ -160,7 +160,7 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  type: ClusterIP
+  type: LoadBalancer
 ---
 # Ingress for API Gateway
 apiVersion: networking.k8s.io/v1
@@ -169,14 +169,14 @@ metadata:
   name: api-gateway-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    cert-manager.io/cluster-issuer: letsencrypt-prod # Replace with your issuer name if different
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
     - hosts:
-        - arkade-api.germanywestcentral.cloudapp.azure.com # Replace with your domain
-      secretName: tls-secret # Secret name for TLS certificate
+        - arkade-api.germanywestcentral.cloudapp.azure.com
+      secretName: tls-secret
   rules:
-    - host: arkade-api.germanywestcentral.cloudapp.azure.com # Replace with your domain
+    - host: arkade-api.germanywestcentral.cloudapp.azure.com
       http:
         paths:
           - path: /
