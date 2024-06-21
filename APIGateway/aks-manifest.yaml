@@ -1,133 +1,3 @@
-# api-gateway-with-https.yaml
-
-# Namespace for NGINX Ingress Controller
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ingress-nginx
----
-# NGINX Ingress Controller Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-ingress-controller
-  namespace: ingress-nginx
-spec:
-  selector:
-    matchLabels:
-      app: nginx-ingress
-  template:
-    metadata:
-      labels:
-        app: nginx-ingress
-    spec:
-      containers:
-        - name: nginx-ingress-controller
-          image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.34.1
-          args:
-            - /nginx-ingress-controller
-            - --configmap=ingress-nginx/nginx-configuration
-            - --tcp-services-configmap=ingress-nginx/tcp-services
-            - --udp-services-configmap=ingress-nginx/udp-services
-            - --publish-service=ingress-nginx/ingress-nginx-controller
-          ports:
-            - name: http
-              containerPort: 80
-            - name: https
-              containerPort: 443
----
-# NGINX Ingress Controller Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
-spec:
-  type: LoadBalancer
-  selector:
-    app: nginx-ingress
-  ports:
-    - name: http
-      port: 80
-      targetPort: 80
-    - name: https
-      port: 443
-      targetPort: 443
----
-# Namespace for Cert-Manager
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cert-manager
----
-# Service Account for Cert-Manager
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: cert-manager
-  namespace: cert-manager
----
-# Role for Cert-Manager
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: cert-manager
-  namespace: cert-manager
-rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "create"]
----
-# Role Binding for Cert-Manager
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: cert-manager
-  namespace: cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: cert-manager
-subjects:
-  - kind: ServiceAccount
-    name: cert-manager
-    namespace: cert-manager
----
-# Cert-Manager Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cert-manager
-  namespace: cert-manager
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cert-manager
-  template:
-    metadata:
-      labels:
-        app: cert-manager
-    spec:
-      serviceAccountName: cert-manager
-      containers:
-        - name: cert-manager
-          image: quay.io/jetstack/cert-manager-controller:v1.1.0
----
-# Cert-Manager Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: cert-manager
-  namespace: cert-manager
-spec:
-  selector:
-    app: cert-manager
-  ports:
-    - port: 9402
-      targetPort: 9402
----
-# Deployment for API Gateway
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -147,8 +17,8 @@ spec:
           image: galethus/api-gateway:latest
           ports:
             - containerPort: 8080
+
 ---
-# Service for API Gateway
 apiVersion: v1
 kind: Service
 metadata:
@@ -160,26 +30,67 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  type: LoadBalancer
+  type: ClusterIP
+
 ---
-# Ingress for API Gateway
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3-management
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "admin"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "admin"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - name: amqp
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+    - name: management
+      protocol: TCP
+      port: 15672
+      targetPort: 15672
+  type: ClusterIP
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: api-gateway-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
-  tls:
-    - hosts:
-        - arkade-api.germanywestcentral.cloudapp.azure.com
-      secretName: tls-secret
   rules:
-    - host: arkade-api.germanywestcentral.cloudapp.azure.com
+    - host: arkade.westgermanycentral.cloudapp.azure.com
       http:
         paths:
-          - path: /
+          - path: /api
             pathType: Prefix
             backend:
               service:

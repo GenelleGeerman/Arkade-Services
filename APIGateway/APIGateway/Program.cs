@@ -9,8 +9,9 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
     .AddEnvironmentVariables();
 // Register services
 builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddHealthChecks();
 var app = builder.Build();
-
+app.MapHealthChecks("/health");
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {

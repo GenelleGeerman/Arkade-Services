@@ -26,7 +26,7 @@
     },
     {
       "DownstreamPathTemplate": "/Login",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "user-service",
