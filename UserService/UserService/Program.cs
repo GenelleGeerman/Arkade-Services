@@ -19,7 +19,7 @@ builder.WebHost.UseKestrel(options =>
 {
     options.ListenAnyIP(443, listenOptions =>
     {
-        listenOptions.UseHttps("/app/certs/tls.crt", "/app/certs/tls.key");
+        listenOptions.UseHttps("/etc/tls/tls.crt", "/etc/tls/tls.key");
     });
 });
 // Configure Azure Key Vault integration
