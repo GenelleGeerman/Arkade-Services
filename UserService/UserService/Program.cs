@@ -25,13 +25,6 @@ var connString = builder.Configuration["userdbConn"];
 
 if (builder.Environment.IsProduction())
 {
-    builder.WebHost.UseKestrel(options =>
-    {
-        options.ListenAnyIP(443, listenOptions =>
-        {
-            listenOptions.UseHttps("/etc/tls/certificate.pfx");
-        });
-    });
     var rabbitMqConnString = builder.Configuration["RabbitMQContext"];
     builder.Configuration["ConnectionStrings:RabbitMQContext"] = rabbitMqConnString;
 }
@@ -53,7 +46,6 @@ builder.Services.AddSingleton<MessageService>();
 builder.Services.AddHostedService<MessageHost>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
-
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
