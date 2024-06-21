@@ -21,14 +21,16 @@ public class MessageService
 
     public IConnection Connect()
     {
+        Console.WriteLine($"This is the string: {configuration.GetConnectionString("RabbitMQContext")}");
         var factory = new ConnectionFactory
         {
-            Uri = new Uri(configuration.GetConnectionString("RabbitMQContext"))
+            Uri = new(configuration.GetConnectionString("RabbitMQContext"))
         };
         return factory.CreateConnection();
     }
 
-    public void Publish<T>(string exchangeName, string routingKey, string queueName, T data, IBasicProperties props = null)
+    public void Publish<T>(string exchangeName, string routingKey, string queueName, T data,
+        IBasicProperties props = null)
     {
         channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
         channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
