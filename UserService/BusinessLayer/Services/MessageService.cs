@@ -21,7 +21,6 @@ public class MessageService
 
     public IConnection Connect()
     {
-        Console.WriteLine($"This is the string: {configuration.GetConnectionString("RabbitMQContext")}");
         var factory = new ConnectionFactory
         {
             Uri = new(configuration.GetConnectionString("RabbitMQContext"))

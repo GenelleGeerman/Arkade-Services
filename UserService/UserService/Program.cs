@@ -15,6 +15,13 @@ builder.Configuration.AddJsonFile(builder.Environment.IsProduction()
     ? "appsettings.json"
     : "appsettings.Development.json");
 
+builder.WebHost.UseKestrel(options =>
+{
+    options.ListenAnyIP(443, listenOptions =>
+    {
+        listenOptions.UseHttps("/app/certs/tls.crt", "/app/certs/tls.key");
+    });
+});
 // Configure Azure Key Vault integration
 var vault = builder.Configuration["AzureKeyVault:Vault"];
 var vaultUri = new Uri($"https://{vault}.vault.azure.net/");
@@ -29,7 +36,6 @@ if (builder.Environment.IsProduction())
     builder.Configuration["ConnectionStrings:RabbitMQContext"] = rabbitMqConnString;
 }
 
-Console.WriteLine(builder.Configuration.GetConnectionString("RabbitMQContext"));
 builder.Services.AddDbContext<UserContext>(options =>
 {
     options.UseMySql(connString, ServerVersion.AutoDetect(connString));
@@ -49,7 +55,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
 
-builder.WebHost.UseUrls("https://localhost:443");
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
