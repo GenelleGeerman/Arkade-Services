@@ -10,8 +10,19 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
 // Register services
 builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddHealthChecks();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Gateway", policy => 
+        policy
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowAnyOrigin());
+});
+
 var app = builder.Build();
 app.MapHealthChecks("/health");
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {

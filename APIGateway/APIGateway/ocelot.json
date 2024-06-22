@@ -10,10 +10,10 @@
         }
       ],
       "UpstreamPathTemplate": "/Register",
-      "UpstreamHttpMethod": ["POST"]
+      "UpstreamHttpMethod": ["OPTIONS", "POST"]
     },
     {
-      "DownstreamPathTemplate": "/profile/{everything}",
+      "DownstreamPathTemplate": "/Profile/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -21,8 +21,8 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/profile/{everything}",
-      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
+      "UpstreamPathTemplate": "/Profile/{everything}",
+      "UpstreamHttpMethod": ["OPTIONS", "GET", "POST", "PUT", "DELETE"]
     },
     {
       "DownstreamPathTemplate": "/Login",
@@ -34,10 +34,10 @@
         }
       ],
       "UpstreamPathTemplate": "/Login",
-      "UpstreamHttpMethod": ["POST"]
+      "UpstreamHttpMethod": ["OPTIONS", "POST"]
     },
     {
-      "DownstreamPathTemplate": "/review/{everything}",
+      "DownstreamPathTemplate": "/Review/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -45,11 +45,11 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/review/{everything}",
-      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
+      "UpstreamPathTemplate": "/Review/{everything}",
+      "UpstreamHttpMethod": ["OPTIONS", "GET", "POST", "PUT", "DELETE"]
     },
     {
-      "DownstreamPathTemplate": "/game/{everything}",
+      "DownstreamPathTemplate": "/Game/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -57,8 +57,8 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/game/{everything}",
-      "UpstreamHttpMethod": ["GET", "POST", "PUT", "DELETE"]
+      "UpstreamPathTemplate": "/Game/{everything}",
+      "UpstreamHttpMethod": ["OPTIONS", "GET", "POST", "PUT", "DELETE"]
     }
   ]
 }

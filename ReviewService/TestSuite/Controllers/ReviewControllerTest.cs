@@ -30,12 +30,42 @@ public class ReviewControllerTest
         mockRepository.Setup(r => r.Delete(It.IsAny<int>())).ReturnsAsync(true);
         mockRepository.Setup(r => r.GetByUserId(It.IsAny<int>())).ReturnsAsync(new[] { review, review });
         mockRepository.Setup(r => r.GetByGameId(It.IsAny<int>())).ReturnsAsync(new[] { review, review });
-
+        
         // Create the ReviewService instance with mocked repository
-        service = new(mockRepository.Object, new Mock<MessageService>().Object);
+        service = new(mockRepository.Object, SetupMockMessage().Object);
         controller = new(service);
     }
 
+    private Mock<IMessageService> SetupMockMessage()
+    {
+        var mock = new Mock<IMessageService>();
+
+        // Setup for Publish
+        mock.Setup(m => m.Publish(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
+            .Verifiable();
+
+        // Setup for Subscribe
+        mock.Setup(m => m.Subscribe<MessageData>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Action<MessageData>>()))
+            .Returns((string exchangeName, string queueName, string routingKey, Action<MessageData> handler) =>
+            {
+                // Simulate message data and invoke the handler instantly
+                var messageData = new MessageData
+                {
+                    ExchangeName = "ProfileResponse",
+                    RoutingKey = "ProfileResponse",
+                    Data = "Test Data"
+                };
+                handler(messageData);
+                return "test-tag";
+            });
+        // Setup for UnSubscribe
+        mock.Setup(m => m.UnSubscribe(It.IsAny<string>()))
+            .Verifiable();
+
+        return mock;
+    }
+    
     [TestMethod]
     public async Task Create()
     {

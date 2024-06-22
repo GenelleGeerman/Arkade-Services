@@ -56,8 +56,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllPolicy"
-        , policy => { policy.WithOrigins("https://arkade.germanywestcentral.cloudapp.azure.com/").AllowAnyMethod().AllowAnyHeader(); });
+    options.AddPolicy("Gateway"
+        , policy => { policy.WithOrigins("https://arkade-api.germanywestcentral.cloudapp.azure.com/").AllowAnyMethod().AllowAnyHeader(); });
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {

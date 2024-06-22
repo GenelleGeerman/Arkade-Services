@@ -1,14 +1,18 @@
 using BusinessLayer.Interfaces;
 using BusinessLayer.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ReviewAPI;
 
 [Route("[controller]")]
 [ApiController]
+[EnableCors("Gateway")]
 public class ReviewController(IReviewService service) : ControllerBase
 {
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] Review review)
     {
         try
@@ -37,6 +41,7 @@ public class ReviewController(IReviewService service) : ControllerBase
     }
 
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> Update([FromBody] Review review)
     {
         try
@@ -51,6 +56,7 @@ public class ReviewController(IReviewService service) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         try

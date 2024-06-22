@@ -115,4 +115,35 @@ public class ReviewControllerErrorTest
         Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
         Assert.AreEqual("Internal server error: Service exception", objectResult.Value);
     }
+    
+    
+    private Mock<IMessageService> SetupMockMessage()
+    {
+        var mock = new Mock<IMessageService>();
+
+        // Setup for Publish
+        mock.Setup(m => m.Publish(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
+            .Verifiable();
+
+        // Setup for Subscribe
+        mock.Setup(m => m.Subscribe<MessageData>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Action<MessageData>>()))
+            .Returns((string exchangeName, string queueName, string routingKey, Action<MessageData> handler) =>
+            {
+                // Simulate message data and invoke the handler instantly
+                var messageData = new MessageData
+                {
+                    ExchangeName = "ProfileResponse",
+                    RoutingKey = "ProfileResponse",
+                    Data = "Test Data"
+                };
+                handler(messageData);
+                return "test-tag";
+            });
+        // Setup for UnSubscribe
+        mock.Setup(m => m.UnSubscribe(It.IsAny<string>()))
+            .Verifiable();
+
+        return mock;
+    }
 }
