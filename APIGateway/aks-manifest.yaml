@@ -30,7 +30,22 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  type: ClusterIP
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  ports:
+    - name: proxy
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: api-gateway
+  type: LoadBalancer
 
 ---
 apiVersion: apps/v1
@@ -82,18 +97,23 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: api-gateway-ingress
+  name: frontend-ingress
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - arkade.germanywestcentral.cloudapp.azure.com
+      secretName: tls-secret
   rules:
-    - host: arkade.westgermanycentral.cloudapp.azure.com
+    - host: arkade.germanywestcentral.cloudapp.azure.com
       http:
         paths:
-          - path: /api
+          - path: /
             pathType: Prefix
             backend:
               service:
-                name: api-gateway
+                name: frontend
                 port:
                   number: 80
