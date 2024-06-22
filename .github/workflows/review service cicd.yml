@@ -10,7 +10,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./GameService
+    working-directory: ./ReviewService
 
 jobs:
   build:

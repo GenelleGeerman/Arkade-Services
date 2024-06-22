@@ -18,7 +18,7 @@ spec:
         - name: user-service
           image: galethus/user-service:latest
           ports:
-            - containerPort: 443
+            - containerPort: 8080
               name: user-service
           resources:
             requests:
@@ -43,8 +43,8 @@ metadata:
   name: user-service
 spec:
   ports:
-    - port: 443
-      targetPort: 443
+    - port: 80
+      targetPort: 8080
   selector:
     app: user-service
 

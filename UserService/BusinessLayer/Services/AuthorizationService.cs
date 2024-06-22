@@ -14,7 +14,7 @@ public class AuthorizationService(IConfiguration config) : IAuthorizationService
 
     public string GenerateToken(UserData userInfo)
     {
-        SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
+        SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(config["JwtKey"]!));
         SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
@@ -24,8 +24,8 @@ public class AuthorizationService(IConfiguration config) : IAuthorizationService
             new Claim("lastName", userInfo.LastName)
             // Add additional claims as needed
         };
-        JwtSecurityToken token = new(config["Jwt:Issuer"],
-            config["Jwt:Issuer"],
+        JwtSecurityToken token = new(config["JwtIssuer"],
+            config["JwtIssuer"],
             claims,
             expires: DateTime.Now.AddMinutes(TOKEN_EXPIRATION_IN_MINUTES),
             signingCredentials: credentials);
@@ -65,14 +65,14 @@ public class AuthorizationService(IConfiguration config) : IAuthorizationService
     private ClaimsPrincipal GetPrincipal(string token)
     {
         JwtSecurityTokenHandler tokenHandler = new();
-        byte[] key = Encoding.ASCII.GetBytes(config["Jwt:Key"]!);
+        byte[] key = Encoding.ASCII.GetBytes(config["JwtKey"]!);
 
         TokenValidationParameters validationParameters = new()
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateIssuer = true,
-            ValidIssuer = config["Jwt:Issuer"],
+            ValidIssuer = config["JwtIssuer"],
             ValidateAudience = false,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero // You can adjust this value
