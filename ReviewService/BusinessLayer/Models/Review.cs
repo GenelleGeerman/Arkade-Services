@@ -8,6 +8,7 @@ public class Review
     public int Id { get; set; }
     public int UserId { get; set; }
     public string User { get; set; } = string.Empty;
+
     public Review Copy()
     {
         return (Review)MemberwiseClone();

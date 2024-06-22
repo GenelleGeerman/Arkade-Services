@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Configuration;
-
 namespace TestSuite.Services;
 
 [TestClass]
@@ -39,11 +37,11 @@ public class ReviewServiceTest
         var mock = new Mock<IMessageService>();
 
         // Setup for Publish
-        mock.Setup(m => m.Publish(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
+        mock.Setup(m => m.Publish(It.IsAny<MessageData>()))
             .Verifiable();
 
         // Setup for Subscribe
-        mock.Setup(m => m.Subscribe<MessageData>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Action<MessageData>>()))
+        mock.Setup(m => m.Subscribe(It.IsAny<MessageData>(), It.IsAny<Action<MessageData>>()))
             .Returns((string exchangeName, string queueName, string routingKey, Action<MessageData> handler) =>
             {
                 // Simulate message data and invoke the handler instantly

@@ -1,9 +1,12 @@
+using BusinessLayer.Models;
+
 namespace BusinessLayer.Interfaces;
 
 public interface IMessageService
 {
-    void Publish<T>(string exchangeName, string routingKey, T data);
+    void Publish(MessageData data);
 
-    string Subscribe<T>(string exchangeName, string queueName, string routingKey, Action<T> handler);
+    string Subscribe(MessageData message, Action<MessageData> handler);
+
     void UnSubscribe(string tag);
 }

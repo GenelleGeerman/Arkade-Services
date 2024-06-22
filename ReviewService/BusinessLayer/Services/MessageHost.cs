@@ -1,4 +1,3 @@
-using System.Text.Json;
 using BusinessLayer.Interfaces;
 using BusinessLayer.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,16 +11,24 @@ public class MessageHost(IServiceProvider serviceProvider) : IHostedService
     {
         var scope = serviceProvider.CreateScope();
         var messageService = scope.ServiceProvider.GetRequiredService<MessageService>();
-        messageService.Subscribe<MessageData>("DeleteUser", "DeleteUser", "DeleteUser",
-            async (message) => await HandleDeletion(messageService, message));
+        MessageData data = MessageFactory.GetDeleteUserMessage();
+        messageService.Subscribe(data,
+            async message => await HandleDeletion(message));
         return Task.CompletedTask;
     }
 
-    private async Task HandleDeletion(MessageService messageService, MessageData message)
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        // Optionally, add code here to unsubscribe from messages and clean up resources if necessary.
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleDeletion(MessageData message)
     {
         using (IServiceScope scope = serviceProvider.CreateScope())
         {
             IReviewService reviewService = scope.ServiceProvider.GetRequiredService<IReviewService>();
+
             try
             {
                 reviewService.DeleteAllByUserId(message.UserId);
@@ -32,11 +39,5 @@ public class MessageHost(IServiceProvider serviceProvider) : IHostedService
                 Console.WriteLine(ex.Message);
             }
         }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        // Optionally, add code here to unsubscribe from messages and clean up resources if necessary.
-        return Task.CompletedTask;
     }
 }

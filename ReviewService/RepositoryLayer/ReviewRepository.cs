@@ -58,7 +58,6 @@ public class ReviewRepository : IReviewRepository
         return Task.CompletedTask;
     }
 
-
     public async Task<bool> Delete(int id)
     {
         ReviewEntity? entity = await context.Set<ReviewEntity>().FindAsync(id);
