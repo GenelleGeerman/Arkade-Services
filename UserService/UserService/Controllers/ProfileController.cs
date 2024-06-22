@@ -10,10 +10,10 @@ namespace UserService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[EnableCors("AllowAllPolicy")]
 public class ProfileController(IProfileService service) : ControllerBase
 {
     [HttpGet]
-    [EnableCors("AllowAllPolicy")]
     [Authorize]
     public async Task<IActionResult> Get()
     {
@@ -37,7 +37,6 @@ public class ProfileController(IProfileService service) : ControllerBase
     }
     
     [HttpGet("{id}")]
-    [EnableCors("AllowAllPolicy")]
     public async Task<IActionResult> Get(long id)
     {
         try
@@ -53,7 +52,6 @@ public class ProfileController(IProfileService service) : ControllerBase
     }
 
     [HttpPut]
-    [EnableCors("AllowAllPolicy")]
     public async Task<IActionResult> Update([FromBody] ProfileRequest request)
     {
         try

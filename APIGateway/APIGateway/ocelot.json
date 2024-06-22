@@ -6,7 +6,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "user-service",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/",
@@ -18,7 +18,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "user-service",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/Register",
@@ -30,7 +30,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "user-service",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/Profile/{everything}",
@@ -42,7 +42,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "user-service",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/Login",
