@@ -37,4 +37,10 @@ public class ReviewEntity
             UserId = UserId
         };
     }
+
+    public void Update(Review review)
+    {
+        if (!string.IsNullOrEmpty(review.Title)) Title = review.Title;
+        if (!string.IsNullOrEmpty(review.Description)) Title = review.Description;
+    }
 }

@@ -8,11 +8,11 @@ namespace RepositoryLayer;
 public class ReviewRepository : IReviewRepository
 {
     private ReviewContext context;
+
     public ReviewRepository(ReviewContext context)
     {
         this.context = context ?? throw new ArgumentNullException(nameof(context));
     }
-
 
     public async Task<Review> Create(Review request)
     {
@@ -29,7 +29,9 @@ public class ReviewRepository : IReviewRepository
 
     public async Task<Review> Update(Review request)
     {
-        ReviewEntity entity = new(request);
+        ReviewEntity? entity = context.Reviews.FirstOrDefault(e => e.Id == request.Id);
+        if (entity == null) return new();
+        entity.Update(request);
         context.Entry(entity).State = EntityState.Modified;
         await context.SaveChangesAsync();
         return entity.GetReview();
