@@ -28,6 +28,7 @@ public class UserEntity
         Instagram = data.Instagram;
         Twitter = data.Twitter;
         Website = data.Website;
+        UserName = data.Username;
     }
 
     public UserData GetUserData()

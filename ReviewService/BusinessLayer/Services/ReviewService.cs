@@ -16,7 +16,7 @@ public class ReviewService(IReviewRepository repository, IMessageService msgServ
     public async Task<Review> Create(Review request)
     {
         int id = authService.GetUserId(request.Token);
-        if (request.Id != id) request.Id = id;
+        if (request.UserId != id) request.UserId = id;
         Review response = await repository.Create(request);
         return response.Copy();
     }
