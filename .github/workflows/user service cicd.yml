@@ -1,0 +1,91 @@
+name: User Service CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - config/ci
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./UserService
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore NuGet packages
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Test
+        run: dotnet test --no-restore
+
+  create-image:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login -u ${{ vars.CI_REGISTRY_USER }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ vars.USER_SERVICE_NAME }} .
+          docker push ${{ vars.USER_SERVICE_NAME }}
+          docker rmi ${{ vars.USER_SERVICE_NAME }}
+
+  deploy-to-azure:
+    runs-on: ubuntu-latest
+    needs: create-image
+    container:
+      image: mcr.microsoft.com/azure-cli
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        run: |
+          echo "Logging into Azure..."
+          az login --service-principal -u ${{ secrets.AZURE_APP_ID }} -p ${{ secrets.AZURE_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
+      - name: Get AKS credentials
+        run: |
+          echo "Getting AKS credentials..."
+          az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP}} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Deploy to AKS
+        run: |
+          echo "Deploying to AKS..."
+          kubectl apply -f aks-manifest.yaml

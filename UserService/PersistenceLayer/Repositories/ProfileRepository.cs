@@ -17,7 +17,8 @@ public class ProfileRepository : IProfileRepository
 
     public async Task<UserData> Get(long userId)
     {
-        return crudRepo.GetById(userId).GetUserData();
+        UserEntity entity = crudRepo.GetById(userId);
+        return entity == null ? new() : entity.GetUserData();
     }
 
     public async Task<UserData> Update(UserData request)
