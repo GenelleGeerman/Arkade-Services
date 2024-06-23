@@ -31,7 +31,29 @@ public class ReviewRepository : IReviewRepository
     {
         ReviewEntity entity = new(request);
         context.Entry(entity).State = EntityState.Modified;
-        await context.SaveChangesAsync();
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Fetch the entity from the database again to get the current values
+            var databaseEntity = await context.Reviews
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Id == request.Id);
+
+            if (databaseEntity == null)
+            {
+                throw new Exception("The review you are trying to update was deleted by another user.");
+            }
+
+            // Optionally, you can notify the user or retry the operation
+            // For now, we'll just throw an exception with a detailed message
+            throw new Exception(
+                "The review you are trying to update has been modified by another user. Please reload and try again.");
+        }
+
         return entity.GetReview();
     }
 
