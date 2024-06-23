@@ -31,6 +31,7 @@ public class ReviewService(IReviewRepository repository, IMessageService msgServ
     public async Task<bool> Delete(string token, int reviewId)
     {
         int userId = authService.GetUserId(token);
+        Console.WriteLine($"USER ID: {userId}");
         return await repository.Delete(userId, reviewId);
     }
 

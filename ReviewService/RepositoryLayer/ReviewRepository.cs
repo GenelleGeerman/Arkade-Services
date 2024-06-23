@@ -60,7 +60,7 @@ public class ReviewRepository : IReviewRepository
 
     public async Task<bool> Delete(int userId, int reviewId)
     {
-        ReviewEntity? entity = await context.Set<ReviewEntity>().FindAsync(reviewId);
+        ReviewEntity? entity = context.Reviews.FirstOrDefault(e => e.Id == reviewId);
         if (entity == null) return false;
         if (entity.UserId != userId) return false;
         context.Set<ReviewEntity>().Remove(entity);
