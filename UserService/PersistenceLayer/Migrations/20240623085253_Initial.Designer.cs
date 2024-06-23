@@ -11,8 +11,8 @@ using PersistenceLayer.Repositories;
 namespace PersistenceLayer.Migrations
 {
     [DbContext(typeof(UserContext))]
-    [Migration("20240606151956_socials")]
-    partial class socials
+    [Migration("20240623085253_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,6 +57,10 @@ namespace PersistenceLayer.Migrations
                         .HasColumnType("longblob");
 
                     b.Property<string>("Twitter")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("longtext");
 

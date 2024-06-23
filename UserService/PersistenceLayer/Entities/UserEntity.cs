@@ -7,6 +7,7 @@ public class UserEntity
     public long Id { get; set; } = -1;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public byte[] Salt { get; set; } = Array.Empty<byte>();
@@ -41,7 +42,9 @@ public class UserEntity
             Salt = Salt,
             Instagram = Instagram,
             Twitter = Twitter,
-            Website = Website
+            Website = Website,
+            UserName = UserName
         };
     }
+
 }

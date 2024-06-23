@@ -57,6 +57,10 @@ namespace PersistenceLayer.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Website")
                         .IsRequired()
                         .HasColumnType("longtext");

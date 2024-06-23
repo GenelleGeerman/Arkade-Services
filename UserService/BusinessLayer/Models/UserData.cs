@@ -9,9 +9,10 @@ public class UserData
     public string Password { get; set; } = string.Empty;
     public byte[] Salt { get; set; } = Array.Empty<byte>();
     public string Token { get; set; } = string.Empty;
-    public string Instagram { get; set; }= string.Empty;
-    public string Twitter { get; set; }= string.Empty;
-    public string Website { get; set; }= string.Empty;
+    public string Instagram { get; set; } = string.Empty;
+    public string Twitter { get; set; } = string.Empty;
+    public string Website { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
 
     public UserData Copy()
     {
