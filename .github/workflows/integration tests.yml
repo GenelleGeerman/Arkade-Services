@@ -2,17 +2,11 @@ name: Postman Integration Tests
 
 on:
   workflow_run:
-    workflows:
-      [
-        "API Gateway CI/CD",
-        "Game Service CI/CD",
-        "Review Service CI/CD",
-        "User Service CI/CD",
-      ]
+    workflows: ["Review Service CI/CD", "User Service CI/CD"]
     types:
       - completed
 jobs:
-  postman-tests:
+  newman-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,12 +16,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: "14"
 
-      - name: Install Postman CLI
-        run: npm install -g @postman/cli
+      - name: Install Newman
+        run: npm install -g newman
 
-      - name: Run Postman CLI tests
+      - name: Run Newman tests
         run: |
-          postman collection run ARKADE.postman_collection.json \
-            --environment Arkade.postman_environment.json
+          newman run ARKADE.postman_collection.json --environment Arkade.postman_environment.json
