@@ -42,7 +42,7 @@ builder.Services.AddTransient<ILoginService, LoginService>();
 builder.Services.AddTransient<IRegisterService, RegisterService>();
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>();
 builder.Services.AddTransient<IProfileService, ProfileService>();
-builder.Services.AddSingleton<MessageService>();
+builder.Services.AddSingleton<IMessageService, MessageService>();
 builder.Services.AddHostedService<MessageHost>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
