@@ -7,12 +7,12 @@ namespace RepositoryLayer;
 
 public class ReviewRepository : IReviewRepository
 {
+    private ReviewContext context;
     public ReviewRepository(ReviewContext context)
     {
         this.context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    private ReviewContext context { get; }
 
     public async Task<Review> Create(Review request)
     {
@@ -31,25 +31,7 @@ public class ReviewRepository : IReviewRepository
     {
         ReviewEntity entity = new(request);
         context.Entry(entity).State = EntityState.Modified;
-
-        try
-        {
-            await context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            // Fetch the entity from the database again to get the current values
-            var databaseEntity = await context.Reviews
-                .FirstOrDefaultAsync(e => e.Id == request.Id);
-
-            if (databaseEntity == null)
-            {
-                throw new("The review you are trying to update was deleted by another user.");
-            }
-
-            await context.SaveChangesAsync();
-        }
-
+        await context.SaveChangesAsync();
         return entity.GetReview();
     }
 

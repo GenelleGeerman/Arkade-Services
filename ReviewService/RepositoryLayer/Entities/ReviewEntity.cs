@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using BusinessLayer.Models;
 
 namespace RepositoryLayer.Entities;
@@ -8,6 +9,8 @@ public class ReviewEntity
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int GameId { get; set; }
+    
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public int UserId { get; set; }
     [Timestamp]
