@@ -23,11 +23,13 @@ public class ProfileRepository : IProfileRepository
 
     public async Task<UserData> Update(UserData request)
     {
-        UserEntity entity = new(request);
-        crudRepo.Update(entity);
+        UserEntity entity = new(request); // Assuming UserEntity maps to UserData
+        context.Update(entity); // Mark entity as modified
         await context.SaveChangesAsync();
+        await context.Entry(entity).ReloadAsync();
         return entity.GetUserData();
     }
+
 
     public async Task<bool> Delete(long id)
     {

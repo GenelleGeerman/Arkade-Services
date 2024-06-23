@@ -1,13 +1,11 @@
-using Microsoft.Extensions.Configuration;
-
 namespace TestSuite.Services;
 
 [TestClass]
 public class RegisterServiceTest
 {
-    private RegisterService service = null!;
     private const string CORRECT_EMAIL = "test@email.com";
     private const string EXISTING_EMAIL = "existing@email.com";
+    private RegisterService service = null!;
 
     [TestInitialize]
     public void BeforeEachTest()
@@ -16,12 +14,15 @@ public class RegisterServiceTest
 
         Mock<IRegisterRepository> repository = new();
         repository.Setup(repository => repository.Register(It.IsAny<UserData>())).Returns(false);
-        repository.Setup(repository => repository.Register(It.Is<UserData>(u => u.Email.Equals(CORRECT_EMAIL)))).Returns(true);
-        repository.Setup(repository => repository.IsEmailExisting(It.Is<UserData>(u => u.Email.Equals(EXISTING_EMAIL)))).Returns(true);
+        repository.Setup(repository => repository.Register(It.Is<UserData>(u => u.Email.Equals(CORRECT_EMAIL))))
+            .Returns(true);
+        repository.Setup(repository => repository.IsEmailExisting(It.Is<UserData>(u => u.Email.Equals(EXISTING_EMAIL))))
+            .Returns(true);
         Mock<ILoginService> loginService = new();
         loginService.Setup(service => service.Login(It.IsAny<UserData>())).ReturnsAsync(new UserData());
-        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(CORRECT_EMAIL)))).ReturnsAsync(new UserData(){Token ="Token"});
-        service = new(repository.Object,loginService.Object);
+        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(CORRECT_EMAIL))))
+            .ReturnsAsync(new UserData { Token = "Token" });
+        service = new(repository.Object, loginService.Object);
     }
 
     [TestMethod]
@@ -82,7 +83,7 @@ public class RegisterServiceTest
         };
 
         //act
-        UserData response = await  service.Register(user);
+        UserData response = await service.Register(user);
         //assert
         Assert.IsTrue(string.IsNullOrEmpty(response.Token));
     }
@@ -103,7 +104,8 @@ public class RegisterServiceTest
         bool result = service.IsEmailExisting(user);
         //assert
         Assert.IsTrue(result);
-    } 
+    }
+
     [TestMethod]
     public void IsEmailExisting_DoesNotExist_ReturnsFalse()
     {

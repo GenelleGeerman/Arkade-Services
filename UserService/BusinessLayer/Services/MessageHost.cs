@@ -11,7 +11,7 @@ public class MessageHost(IServiceProvider serviceProvider) : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         var scope = serviceProvider.CreateScope();
-        var messageService = scope.ServiceProvider.GetRequiredService<MessageService>();
+        var messageService = scope.ServiceProvider.GetRequiredService<IMessageService>();
         var profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
         MessageData sub = MessageFactory.GetProfileMessage();
         messageService.Subscribe(sub,
@@ -19,7 +19,7 @@ public class MessageHost(IServiceProvider serviceProvider) : IHostedService
         return Task.CompletedTask;
     }
 
-    private async Task HandleProfile(MessageService messageService, MessageData message)
+    private async Task HandleProfile(IMessageService messageService, MessageData message)
     {
         using (IServiceScope scope = serviceProvider.CreateScope())
         {

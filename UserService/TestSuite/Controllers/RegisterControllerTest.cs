@@ -24,13 +24,15 @@ public class RegisterControllerTest
         };
         Mock<IRegisterRepository> repository = new();
         repository.Setup(p => p.IsEmailExisting(It.IsAny<UserData>())).Returns(false);
-        repository.Setup(p => p.IsEmailExisting(It.Is<UserData>(u => u.Email.Equals("existing@email.com")))).Returns(true);
+        repository.Setup(p => p.IsEmailExisting(It.Is<UserData>(u => u.Email.Equals("existing@email.com"))))
+            .Returns(true);
         repository.Setup(p => p.Register(It.Is<UserData>(u => u.Email.Equals("existing@email.com")))).Returns(false);
         repository.Setup(p => p.Register(It.IsAny<UserData>())).Returns(true);
-        Mock<ILoginService> loginService = new();//TODO: Fix this
+        Mock<ILoginService> loginService = new(); //TODO: Fix this
         loginService.Setup(service => service.Login(It.IsAny<UserData>())).ReturnsAsync(new UserData());
-        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(NEW_EMAIL)))).ReturnsAsync(new UserData(){Token ="Token"});
-        
+        loginService.Setup(service => service.Login(It.Is<UserData>(data => data.Email.Equals(NEW_EMAIL))))
+            .ReturnsAsync(new UserData { Token = "Token" });
+
         IRegisterService service = new RegisterService(repository.Object, loginService.Object);
         controller = new(service);
     }
@@ -48,7 +50,7 @@ public class RegisterControllerTest
         Assert.IsNotNull(response);
         Assert.AreEqual(HTTP_OK, response.StatusCode);
     }
-    
+
     [TestMethod]
     public async void Register_ExistingEmail_ShouldReturnUnauthorized()
     {

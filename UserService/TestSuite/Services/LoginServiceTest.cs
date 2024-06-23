@@ -84,8 +84,7 @@ public class LoginServiceTest
 
         Assert.IsTrue(string.IsNullOrEmpty(userData.Token));
     }
-    
-    
+
     [TestMethod]
     public async void LoginWithCapitalEmail_ShouldReturnToken()
     {

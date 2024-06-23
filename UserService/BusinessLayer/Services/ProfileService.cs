@@ -13,10 +13,10 @@ namespace BusinessLayer.Services
     {
         private readonly IProfileRepository profileRepository;
         private readonly IAuthorizationService auth;
-        private readonly MessageService msgService;
+        private readonly IMessageService msgService;
 
         public ProfileService(IProfileRepository profileRepository, IAuthorizationService auth,
-            MessageService msgService)
+            IMessageService msgService)
         {
             this.profileRepository = profileRepository;
             this.auth = auth;

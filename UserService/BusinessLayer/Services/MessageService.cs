@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using BusinessLayer.Interfaces;
 using BusinessLayer.Models;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
@@ -8,7 +9,7 @@ using RabbitMQ.Client.Exceptions;
 
 namespace BusinessLayer.Services;
 
-public class MessageService
+public class MessageService : IMessageService
 {
     private readonly IConfiguration configuration;
     private readonly IConnection connection;
@@ -30,15 +31,6 @@ public class MessageService
             Console.WriteLine("Disabling messaging");
             isDisabled = true;
         }
-    }
-
-    public IConnection Connect()
-    {
-        var factory = new ConnectionFactory
-        {
-            Uri = new(configuration.GetConnectionString("RabbitMQContext"))
-        };
-        return factory.CreateConnection();
     }
 
     public void Publish(MessageData data)
@@ -76,8 +68,17 @@ public class MessageService
 
         return channel.BasicConsume(message.QueueName, true, consumer);
     }
-
-    public IBasicProperties CreateBasicProperties()
+    
+    private IConnection Connect()
+    {
+        var factory = new ConnectionFactory
+        {
+            Uri = new(configuration.GetConnectionString("RabbitMQContext"))
+        };
+        return factory.CreateConnection();
+    }
+    
+    private IBasicProperties CreateBasicProperties()
     {
         return channel.CreateBasicProperties();
     }

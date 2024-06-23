@@ -1,6 +1,3 @@
 namespace TestSuite.Controllers;
 
-public class ProfileControllerTest
-{
-    
-}
+public class ProfileControllerTest { }
