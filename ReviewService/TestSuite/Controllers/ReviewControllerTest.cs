@@ -27,20 +27,27 @@ public class ReviewControllerTest
         mockRepository.Setup(r => r.Create(It.IsAny<Review>())).ReturnsAsync(review);
         mockRepository.Setup(r => r.Get(It.IsAny<int>())).ReturnsAsync(review);
         mockRepository.Setup(r => r.Update(It.IsAny<Review>())).ReturnsAsync(review);
-        mockRepository.Setup(r => r.Delete(It.IsAny<int>())).ReturnsAsync(true);
+        Mock<IAuthorizationService> mockAuth = new();
+        mockAuth.Setup(a => a.GetUserId(It.IsAny<string>())).Returns(1);
+        mockRepository.Setup(r => r.Delete(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(true);
         mockRepository.Setup(r => r.GetByUserId(It.IsAny<int>())).ReturnsAsync(new[] { review, review });
         mockRepository.Setup(r => r.GetByGameId(It.IsAny<int>())).ReturnsAsync(new[] { review, review });
 
         // Create the ReviewService instance with mocked repository
-        service = new(mockRepository.Object, SetupMockMessage().Object);
+        service = new(mockRepository.Object, SetupMockMessage().Object, mockAuth.Object);
         controller = new(service);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers["Authorization"] = "Bearer test_token";
+        controller.ControllerContext = new()
+        {
+            HttpContext = httpContext
+        };
     }
 
     [TestMethod]
     public async Task Create()
     {
         IActionResult result = await controller.Create(review);
-
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
@@ -50,9 +57,8 @@ public class ReviewControllerTest
     [TestMethod]
     public async Task Get()
     {
-        int reviewId = 1;
+        const int reviewId = 1;
         IActionResult result = await controller.Get(reviewId);
-
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
@@ -114,20 +120,14 @@ public class ReviewControllerTest
             .Verifiable();
 
         // Setup for Subscribe
-        mock.Setup(m => m.Subscribe(It.IsAny<MessageData>(),
-                It.IsAny<Action<MessageData>>()))
-            .Returns((string exchangeName, string queueName, string routingKey, Action<MessageData> handler) =>
+        mock.Setup(m => m.Subscribe(It.IsAny<MessageData>(), It.IsAny<Action<MessageData>>()))
+            .Returns((MessageData messageData, Action<MessageData> handler) =>
             {
                 // Simulate message data and invoke the handler instantly
-                var messageData = new MessageData
-                {
-                    ExchangeName = "ProfileResponse",
-                    RoutingKey = "ProfileResponse",
-                    Data = "Test Data"
-                };
                 handler(messageData);
                 return "test-tag";
             });
+
         // Setup for UnSubscribe
         mock.Setup(m => m.UnSubscribe(It.IsAny<string>()))
             .Verifiable();

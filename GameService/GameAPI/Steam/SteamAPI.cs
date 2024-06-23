@@ -1,90 +1,110 @@
 using Newtonsoft.Json.Linq;
 
-namespace GameAPI.Steam
+namespace GameAPI.Steam;
+
+public class SteamApi
 {
-    public class SteamAPI
+    private readonly HttpClient httpClient = new();
+    private readonly SteamLibrary steamLibrary = new();
+
+    private void InitializeLibrary()
     {
-        private readonly HttpClient httpClient = new HttpClient();
-        private readonly SteamLibrary steamLibrary = new SteamLibrary();
+        if (steamLibrary.Init) return;
+        steamLibrary.Init = true;
 
-        public async Task<List<SteamGame>> GetGames(string name)
+        string url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
+        var response = httpClient.GetStringAsync(url).Result;
+        var json = JObject.Parse(response);
+        JObject[] apps = json["applist"]["apps"].ToObject<JObject[]>();
+
+        if (apps == null) return;
+
+        foreach (JObject t in apps)
         {
-            var games = steamLibrary.Games
-                .Where(g => g.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                            TypoCheck(g.Name, name) <= 2)
-                .ToList();
+            SteamGame game = new() { AppId = t["appid"].Value<int>(), Name = t["name"].Value<string>() };
+            Console.WriteLine($"Created: {game.AppId} - {game.Name}");
+            steamLibrary.Games.TryAdd(game.AppId, game);
+        }
+    }
 
-            if (!games.Any())
-            {
-                var newGames = await FetchGamesFromAPI(name);
-                steamLibrary.Games.AddRange(newGames);
-                steamLibrary.LastUpdated = DateTime.Now;
+    public SteamGame[] GetGames(string name)
+    {
+        InitializeLibrary();
+        return steamLibrary.Games.Values
+            .Where(g => g.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0 || TypoCheck(g.Name, name) <= 2)
+            .ToArray();
+    }
 
-                games = newGames
-                    .Where(g => g.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                TypoCheck(g.Name, name) <= 2)
-                    .ToList();
-            }
+    public SteamGame[] GetAllGames()
+    {
+        InitializeLibrary();
+        return steamLibrary.Games.Values.ToArray();
+    }
 
-            return games;
+    public async Task<SteamGame> GetById(int id)
+    {
+        InitializeLibrary();
+        bool result = steamLibrary.Games.TryGetValue(id, out SteamGame? game);
+
+        if (result && game is { HasInfo: true }) return game;
+
+        string appDetailsUrl = $"https://store.steampowered.com/api/appdetails?appids={id}";
+        var appDetailsResponse = await httpClient.GetStringAsync(appDetailsUrl);
+        var appDetailsJson = JObject.Parse(appDetailsResponse);
+
+        if (!(appDetailsJson[id.ToString()]?["success"] ?? "false").Value<bool>()) return new();
+        var data = appDetailsJson[id.ToString()]?["data"];
+        if (data == null) return new();
+        game = CreateGame(data);
+        steamLibrary.Games.TryAdd(game.AppId, game);
+        return game;
+    }
+
+    private int TypoCheck(string s, string t)
+    {
+        int n = s.Length;
+        int m = t.Length;
+        int[,] d = new int[n + 1, m + 1];
+
+        if (n == 0) return m;
+
+        if (m == 0) return n;
+
+        for (int i = 0; i <= n; d[i, 0] = i++) { }
+
+        for (int j = 0; j <= m; d[0, j] = j++) { }
+
+        for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++)
+        {
+            int cost = t[j - 1] == s[i - 1] ? 0 : 1;
+            d[i, j] = Math.Min(
+                Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                d[i - 1, j - 1] + cost);
         }
 
-        private async Task<List<SteamGame>> FetchGamesFromAPI(string name)
+        return d[n, m];
+    }
+
+    private SteamGame CreateGame(JToken data)
+    {
+        return new()
         {
-            string url = $"https://api.steampowered.com/ISteamApps/GetAppList/v2/";
-            var response = await httpClient.GetStringAsync(url);
-            var json = JObject.Parse(response);
-            var apps = json["applist"]["apps"].ToObject<List<JObject>>();
+            AppId = (data["steam_appid"] ?? data["appid"]).Value<int>(),
 
-            var matchingApps = apps
-                .Where(a => a["name"].ToString().IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                            TypoCheck(a["name"].ToString(), name) <= 2)
-                .ToList();
-
-            var newGames = new List<SteamGame>();
-
-            foreach (var app in matchingApps)
-            {
-                int appId = app["appid"].Value<int>();
-                string appDetailsUrl = $"https://store.steampowered.com/api/appdetails?appids={appId}";
-                var appDetailsResponse = await httpClient.GetStringAsync(appDetailsUrl);
-                var appDetailsJson = JObject.Parse(appDetailsResponse);
-
-                if (appDetailsJson[appId.ToString()]["success"].Value<bool>())
-                {
-                    var data = appDetailsJson[appId.ToString()]["data"];
-                    var steamGame = new SteamGame(data);
-                    newGames.Add(steamGame);
-                }
-            }
-
-            return newGames;
-        }
-
-        private int TypoCheck(string s, string t)
-        {
-            int n = s.Length;
-            int m = t.Length;
-            int[,] d = new int[n + 1, m + 1];
-
-            if (n == 0) { return m; }
-            if (m == 0) { return n; }
-
-            for (int i = 0; i <= n; d[i, 0] = i++) { }
-            for (int j = 0; j <= m; d[0, j] = j++) { }
-
-            for (int i = 1; i <= n; i++)
-            {
-                for (int j = 1; j <= m; j++)
-                {
-                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
-                    d[i, j] = Math.Min(
-                        Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
-                        d[i - 1, j - 1] + cost);
-                }
-            }
-
-            return d[n, m];
-        }
+            Name = (data["name"] ?? "unknown").Value<string>() ?? "unknown",
+            Developer = data["developers"] != null
+                ? string.Join(", ", data["developers"].ToObject<List<string>>())
+                : "Unknown",
+            Publisher = data["publishers"] != null
+                ? string.Join(", ", data["publishers"].ToObject<List<string>>())
+                : "Unknown",
+            Genre = data["genres"] != null
+                ? string.Join(", ", data["genres"].Select(g => g["description"].Value<string>()))
+                : "Unknown",
+            ReleaseDate = data["release_date"]?["date"]?.Value<string>() ?? "Unknown",
+            Description = data["short_description"]?.Value<string>() ?? "No description available",
+            Price = data["price_overview"]?["final"].Value<decimal>() / 100 ?? 0 // Price is in cents
+        };
     }
 }

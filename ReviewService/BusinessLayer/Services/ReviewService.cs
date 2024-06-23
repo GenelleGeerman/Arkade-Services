@@ -5,27 +5,33 @@ using BusinessLayer.Models;
 
 namespace BusinessLayer.Services;
 
-public class ReviewService(IReviewRepository repository, IMessageService msgService) : IReviewService
+public class ReviewService(IReviewRepository repository, IMessageService msgService, IAuthorizationService authService)
+    : IReviewService
 {
-    public async Task<Review> Create(Review request)
-    {
-        Review response = await repository.Create(request);
-        return response.Copy();
-    }
-
     public async Task<Review[]> GetByGameId(int gameId)
     {
         return await repository.GetByGameId(gameId);
     }
 
-    public async Task<Review> Update(Review review)
+    public async Task<Review> Create(Review request)
     {
-        return await repository.Update(review);
+        int id = authService.GetUserId(request.Token);
+        if (request.Id != id) request.Id = id;
+        Review response = await repository.Create(request);
+        return response.Copy();
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task<Review> Update(Review request)
     {
-        return await repository.Delete(id);
+        int id = authService.GetUserId(request.Token);
+        if (request.Id != id) request.Id = id;
+        return await repository.Update(request);
+    }
+
+    public async Task<bool> Delete(string token, int reviewId)
+    {
+        int userId = authService.GetUserId(token);
+        return await repository.Delete(userId, reviewId);
     }
 
     public async Task<Review[]> GetByUserId(int id)

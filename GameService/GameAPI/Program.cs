@@ -1,5 +1,6 @@
 using System.Text;
-using GameAPI.Services;
+using Azure.Identity;
+using GameAPI.Messaging;
 using GameAPI.Steam;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -7,14 +8,28 @@ using Microsoft.IdentityModel.Tokens;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddScoped<SteamAPI>();
-builder.Services.AddScoped<GameService>();
-builder.Configuration.AddJsonFile("appsettings.json");
-builder.Services.AddControllers();
+builder.Services.AddScoped<SteamApi>();
+builder.Configuration.AddJsonFile(builder.Environment.IsProduction()
+    ? "appsettings.json"
+    : "appsettings.Development.json");
 
+builder.Services.AddHostedService<MessageHost>();
+builder.Services.AddSingleton<MessageService>();
+builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// Configure Azure Key Vault integration
+var vault = builder.Configuration["AzureKeyVault:Vault"];
+var vaultUri = new Uri($"https://{vault}.vault.azure.net/");
+builder.Configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
+
+if (builder.Environment.IsProduction())
+{
+    var rabbitMqConnString = builder.Configuration["RabbitMQContext"];
+    builder.Configuration["ConnectionStrings:RabbitMQContext"] = rabbitMqConnString;
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(

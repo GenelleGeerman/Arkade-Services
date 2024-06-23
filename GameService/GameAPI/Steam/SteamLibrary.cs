@@ -2,12 +2,6 @@ namespace GameAPI.Steam;
 
 public class SteamLibrary
 {
-    public SteamLibrary()
-    {
-        Games = new();
-        LastUpdated = DateTime.MinValue;
-    }
-
-    public List<SteamGame> Games { get; set; }
-    public DateTime LastUpdated { get; set; }
+    public Dictionary<int, SteamGame> Games { get; set; } = new();
+    public bool Init { get; set; } = false;
 }

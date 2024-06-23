@@ -3,6 +3,8 @@ using BusinessLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using IAuthorizationService = BusinessLayer.Interfaces.IAuthorizationService;
 
 namespace ReviewAPI;
 
@@ -17,6 +19,14 @@ public class ReviewController(IReviewService service) : ControllerBase
     {
         try
         {
+            if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
+            {
+                return Unauthorized("Authorization header missing");
+            }
+
+            string? tokenString = token.FirstOrDefault()?.Split(" ").Last();
+            if (string.IsNullOrEmpty(tokenString)) return Unauthorized("Invalid token or token is empty.");
+            review.Token = tokenString;
             Review createdReview = await service.Create(review);
             return Ok(createdReview);
         }
@@ -46,6 +56,14 @@ public class ReviewController(IReviewService service) : ControllerBase
     {
         try
         {
+            if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
+            {
+                return Unauthorized("Authorization header missing");
+            }
+
+            string? tokenString = token.FirstOrDefault()?.Split(" ").Last();
+            if (string.IsNullOrEmpty(tokenString)) return Unauthorized("Invalid token or token is empty.");
+            review.Token = tokenString;
             Review updatedReview = await service.Update(review);
             return Ok(updatedReview);
         }
@@ -55,13 +73,21 @@ public class ReviewController(IReviewService service) : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{reviewId}")]
     [Authorize]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int reviewId)
     {
         try
         {
-            bool isDeleted = await service.Delete(id);
+            if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
+            {
+                return Unauthorized("Authorization header missing");
+            }
+
+            string? tokenString = token.FirstOrDefault()?.Split(" ").Last();
+            if (string.IsNullOrEmpty(tokenString)) return Unauthorized("Invalid token or token is empty.");
+
+            bool isDeleted = await service.Delete(tokenString, reviewId);
 
             if (!isDeleted) return NotFound();
 

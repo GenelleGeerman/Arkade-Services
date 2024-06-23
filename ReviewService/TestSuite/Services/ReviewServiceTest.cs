@@ -22,43 +22,15 @@ public class ReviewServiceTest
         };
         mockRepo = new();
 
-        // Common mock setup for Create method
         mockRepo.Setup(r => r.Create(It.IsAny<Review>())).ReturnsAsync((Review r) =>
         {
             r.Id = reviewIdCounter++;
             return r;
         });
         Mock<IMessageService> mockmessage = SetupMockMessage();
-        service = new(mockRepo.Object, mockmessage.Object);
-    }
-
-    private Mock<IMessageService> SetupMockMessage()
-    {
-        var mock = new Mock<IMessageService>();
-
-        // Setup for Publish
-        mock.Setup(m => m.Publish(It.IsAny<MessageData>()))
-            .Verifiable();
-
-        // Setup for Subscribe
-        mock.Setup(m => m.Subscribe(It.IsAny<MessageData>(), It.IsAny<Action<MessageData>>()))
-            .Returns((string exchangeName, string queueName, string routingKey, Action<MessageData> handler) =>
-            {
-                // Simulate message data and invoke the handler instantly
-                var messageData = new MessageData
-                {
-                    ExchangeName = "ProfileResponse",
-                    RoutingKey = "ProfileResponse",
-                    Data = "Test Data"
-                };
-                handler(messageData);
-                return "test-tag";
-            });
-        // Setup for UnSubscribe
-        mock.Setup(m => m.UnSubscribe(It.IsAny<string>()))
-            .Verifiable();
-
-        return mock;
+        Mock<IAuthorizationService> mockAuth = new();
+        mockAuth.Setup(a => a.GetUserId(It.IsAny<string>())).Returns(1);
+        service = new(mockRepo.Object, mockmessage.Object, mockAuth.Object);
     }
 
     [TestMethod]
@@ -142,15 +114,45 @@ public class ReviewServiceTest
     {
         Review createdReview = await CreateReviewAsync();
 
-        mockRepo.Setup(r => r.Delete(createdReview.Id)).ReturnsAsync(true);
+        mockRepo.Setup(r => r.Delete(review.Id, createdReview.Id)).ReturnsAsync(true);
 
-        Assert.IsTrue(await service.Delete(createdReview.Id));
-        mockRepo.Setup(r => r.Delete(createdReview.Id)).ReturnsAsync(false);
-        Assert.IsFalse(await service.Delete(createdReview.Id));
+        Assert.IsTrue(await service.Delete("test",createdReview.Id));
+        mockRepo.Setup(r => r.Delete(review.Id,createdReview.Id)).ReturnsAsync(false);
+        Assert.IsFalse(await service.Delete("test", createdReview.Id));
     }
 
     private async Task<Review> CreateReviewAsync()
     {
         return await service.Create(review);
     }
+    private Mock<IMessageService> SetupMockMessage()
+    {
+        var mock = new Mock<IMessageService>();
+
+        // Setup for Publish
+        mock.Setup(m => m.Publish(It.IsAny<MessageData>()))
+            .Verifiable();
+
+        // Setup for Subscribe
+        mock.Setup(m => m.Subscribe(It.IsAny<MessageData>(), It.IsAny<Action<MessageData>>()))
+            .Returns((MessageData messageData, Action<MessageData> handler) =>
+            {
+                // Simulate message data and invoke the handler instantly
+                var simulatedMessageData = new MessageData
+                {
+                    ExchangeName = "ProfileResponse",
+                    RoutingKey = "ProfileResponse",
+                    Data = "Test Data"
+                };
+                handler(simulatedMessageData);
+                return "test-tag";
+            });
+
+        // Setup for UnSubscribe
+        mock.Setup(m => m.UnSubscribe(It.IsAny<string>()))
+            .Verifiable();
+
+        return mock;
+    }
+
 }

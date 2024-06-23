@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using GameAPI.Services;
 using GameAPI.Steam;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,17 +5,44 @@ namespace GameAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class GameController(GameService service)
+public class GameController(SteamApi service) : ControllerBase
 {
     [HttpGet("{name}")]
-    public async Task<List<SteamGame>> Get(string name)
+    public IActionResult Get(string name)
     {
-        var stopwatch = Stopwatch.StartNew();
-        var games = await service.GetGames(name);
-        stopwatch.Stop();
+        try
+        {
+            return Ok(service.GetGames(name));
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
 
-        Console.WriteLine("Service Time: {0} ms", stopwatch.ElapsedMilliseconds);
+    [HttpGet("id/{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        try
+        {
+            return Ok(await service.GetById(id));
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
 
-        return games;
+    [HttpGet("all")]
+    public IActionResult GetAll()
+    {
+        try
+        {
+            return Ok(service.GetAllGames());
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 }

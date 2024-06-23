@@ -10,7 +10,7 @@ public interface IReviewRepository
 
     Task<Review> Update(Review review);
 
-    Task<bool> Delete(int id);
+    Task<bool> Delete(int userId, int reviewId);
 
     Task<Review[]> GetByGameId(int gameId);
 

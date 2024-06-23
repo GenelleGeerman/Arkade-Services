@@ -1,4 +1,5 @@
 using System.Text;
+using Azure.Identity;
 using BusinessLayer.Interfaces;
 using BusinessLayer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,18 +9,35 @@ using Microsoft.OpenApi.Models;
 using RepositoryLayer;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("appsettings.json");
+builder.Configuration.AddJsonFile(builder.Environment.IsProduction()
+    ? "appsettings.json"
+    : "appsettings.Development.json");
+
+// Configure Azure Key Vault integration
+var vault = builder.Configuration["AzureKeyVault:Vault"];
+var vaultUri = new Uri($"https://{vault}.vault.azure.net/");
+builder.Configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
+
+// Retrieve connection string from Key Vault
+var connString = builder.Configuration["reviewdbConn"];
+
+if (builder.Environment.IsProduction())
+{
+    var rabbitMqConnString = builder.Configuration["RabbitMQContext"];
+    builder.Configuration["ConnectionStrings:RabbitMQContext"] = rabbitMqConnString;
+}
+
 builder.Services.AddDbContext<ReviewContext>(options =>
 {
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(connString, ServerVersion.AutoDetect(connString));
 });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
-builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
+builder.Services.AddTransient<IReviewRepository, ReviewRepository>();
+builder.Services.AddTransient<IAuthorizationService, AuthorizationService>();
 
 builder.Services.AddSingleton<MessageService>();
 builder.Services.AddHostedService<MessageHost>();
@@ -67,10 +85,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Issuer"],
+        ValidIssuer = builder.Configuration["JwtIssuer"],
+        ValidAudience = builder.Configuration["JwtIssuer"],
         IssuerSigningKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty))
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"] ?? string.Empty))
     };
 });
 

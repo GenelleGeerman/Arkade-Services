@@ -21,7 +21,6 @@ public class ProfileController(IProfileService service) : ControllerBase
         {
             if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
                 return Unauthorized("Authorization header missing");
-            Console.WriteLine(token);
             string? tokenString = token.FirstOrDefault()?.Split(" ").Last();
 
             if (string.IsNullOrEmpty(tokenString)) return Unauthorized("Invalid token or token is empty.");
@@ -35,7 +34,7 @@ public class ProfileController(IProfileService service) : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
-    
+
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(long id)
     {
@@ -78,7 +77,7 @@ public class ProfileController(IProfileService service) : ControllerBase
     public async Task<IActionResult> Delete()
     {
         try
-        { 
+        {
             if (!Request.Headers.TryGetValue("Authorization", out StringValues token))
                 return Unauthorized("Authorization header missing");
 

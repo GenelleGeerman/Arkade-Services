@@ -58,10 +58,11 @@ public class ReviewRepository : IReviewRepository
         return Task.CompletedTask;
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task<bool> Delete(int userId, int reviewId)
     {
-        ReviewEntity? entity = await context.Set<ReviewEntity>().FindAsync(id);
+        ReviewEntity? entity = await context.Set<ReviewEntity>().FindAsync(reviewId);
         if (entity == null) return false;
+        if (entity.UserId != userId) return false;
         context.Set<ReviewEntity>().Remove(entity);
         return await context.SaveChangesAsync() > 0;
     }

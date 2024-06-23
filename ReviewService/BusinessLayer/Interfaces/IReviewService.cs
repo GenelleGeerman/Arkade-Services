@@ -8,9 +8,9 @@ public interface IReviewService
 
     Task<Review[]> GetByGameId(int gameId);
 
-    Task<Review> Update(Review review);
+    Task<Review> Update(Review request);
 
-    Task<bool> Delete(int id);
+    Task<bool> Delete(string token, int reviewId);
 
     Task<Review[]> GetByUserId(int userId);
 

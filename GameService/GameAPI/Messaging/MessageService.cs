@@ -1,40 +1,25 @@
 using System.Text;
 using System.Text.Json;
-using BusinessLayer.Interfaces;
-using BusinessLayer.Models;
-using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Exceptions;
 
-namespace BusinessLayer.Services;
+namespace GameAPI.Messaging;
 
-public class MessageService : IMessageService
+public class MessageService
 {
     private readonly IModel channel;
     private readonly IConfiguration configuration;
-    private bool isDisabled = false;
 
     public MessageService(IConfiguration configuration)
     {
-        try
-        {
-            this.configuration = configuration;
-            IConnection connection = Connect();
-            channel = connection.CreateModel();
-            Console.WriteLine("Messaging Online!");
-        }
-        catch (BrokerUnreachableException)
-        {
-            Console.WriteLine("Could not reach broker. Check if Uri is correct");
-            Console.WriteLine("Disabling messaging");
-            isDisabled = true;
-        }
+        this.configuration = configuration;
+        IConnection connection = Connect();
+        channel = connection.CreateModel();
+        Console.WriteLine("Messaging Online!");
     }
 
     public void Publish(MessageData data)
     {
-        if (isDisabled) return;
         channel.ExchangeDeclare(data.ExchangeName, ExchangeType.Direct);
         var jsonMessage = JsonSerializer.Serialize(data);
         var body = Encoding.UTF8.GetBytes(jsonMessage);
@@ -43,12 +28,6 @@ public class MessageService : IMessageService
 
     public string Subscribe(MessageData message, Action<MessageData> handler)
     {
-        if (isDisabled)
-        {
-            handler(new() { Data = "No Connection" });
-            return "disabled";
-        }
-
         channel.ExchangeDeclare(message.ExchangeName, ExchangeType.Direct);
         channel.QueueDeclare(message.QueueName, true, false, false, null);
         channel.QueueBind(message.QueueName, message.ExchangeName, message.RoutingKey);
@@ -69,7 +48,6 @@ public class MessageService : IMessageService
 
     public void UnSubscribe(string tag)
     {
-        if (isDisabled) return;
         channel.BasicCancel(tag);
     }
 
