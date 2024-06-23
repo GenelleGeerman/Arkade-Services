@@ -1,8 +1,10 @@
 using System.Text;
 using System.Text.Json;
+using BusinessLayer.Models;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 
 namespace BusinessLayer.Services;
 
@@ -11,12 +13,23 @@ public class MessageService
     private readonly IConfiguration configuration;
     private readonly IConnection connection;
     private IModel channel;
+    private bool isDisabled = false;
 
     public MessageService(IConfiguration configuration)
     {
-        this.configuration = configuration;
-        connection = Connect();
-        channel = connection.CreateModel();
+        try
+        {
+            this.configuration = configuration;
+            IConnection connection = Connect();
+            channel = connection.CreateModel();
+            Console.WriteLine("Messaging Online!");
+        }
+        catch (BrokerUnreachableException)
+        {
+            Console.WriteLine("Could not reach broker. Check if Uri is correct");
+            Console.WriteLine("Disabling messaging");
+            isDisabled = true;
+        }
     }
 
     public IConnection Connect()
@@ -28,22 +41,27 @@ public class MessageService
         return factory.CreateConnection();
     }
 
-    public void Publish<T>(string exchangeName, string routingKey, string queueName, T data,
-        IBasicProperties props = null)
+    public void Publish(MessageData data)
     {
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
-        channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        if (isDisabled) return;
+        channel.ExchangeDeclare(exchange: data.ExchangeName, type: ExchangeType.Direct);
+        channel.QueueDeclare(queue: data.QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
         var jsonMessage = JsonSerializer.Serialize(data);
         var body = Encoding.UTF8.GetBytes(jsonMessage);
-        channel.BasicPublish(exchange: exchangeName, routingKey: routingKey,
-            basicProperties: props, body: body);
+        channel.BasicPublish(exchange: data.ExchangeName, routingKey: data.RoutingKey, body: body);
     }
 
-    public void Subscribe<T>(string exchangeName, string queueName, string routingKey, Action<T> handler)
+    public string Subscribe(MessageData message, Action<MessageData> handler)
     {
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
-        channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-        channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
+        if (isDisabled)
+        {
+            handler(new() { Data = "No Connection" });
+            return "disabled";
+        }
+
+        channel.ExchangeDeclare(message.ExchangeName, ExchangeType.Direct);
+        channel.QueueDeclare(message.QueueName, true, false, false, null);
+        channel.QueueBind(message.QueueName, message.ExchangeName, message.RoutingKey);
 
         var consumer = new EventingBasicConsumer(channel);
         consumer.Received += (model, ea) =>
@@ -52,14 +70,11 @@ public class MessageService
             var receivedMessage = Encoding.UTF8.GetString(body);
             Console.WriteLine(receivedMessage);
 
-            // Deserialize the message using System.Text.Json
-            var message = JsonSerializer.Deserialize<T>(receivedMessage);
-
-            // Invoke the handler with the deserialized message
-            handler(message);
+            MessageData? response = JsonSerializer.Deserialize<MessageData>(receivedMessage);
+            handler(response ?? new() { Data = "Err" });
         };
 
-        channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+        return channel.BasicConsume(message.QueueName, true, consumer);
     }
 
     public IBasicProperties CreateBasicProperties()

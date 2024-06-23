@@ -21,4 +21,14 @@ public class MessageFactory
             QueueName = "DeleteUser"
         };
     }
+
+    public static MessageData GetProfileMessage()
+    {
+        return new()
+        {
+            ExchangeName = "Profile",
+            RoutingKey = "Profile",
+            QueueName = "Profile"
+        };
+    }
 }

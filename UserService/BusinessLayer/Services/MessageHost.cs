@@ -13,7 +13,8 @@ public class MessageHost(IServiceProvider serviceProvider) : IHostedService
         var scope = serviceProvider.CreateScope();
         var messageService = scope.ServiceProvider.GetRequiredService<MessageService>();
         var profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
-        messageService.Subscribe<MessageData>("Profile", "Profile", "Profile",
+        MessageData sub = MessageFactory.GetProfileMessage();
+        messageService.Subscribe(sub,
             async (message) => await HandleProfile(messageService, message));
         return Task.CompletedTask;
     }
@@ -35,7 +36,7 @@ public class MessageHost(IServiceProvider serviceProvider) : IHostedService
                     QueueName = "ProfileResponse",
                     Data = JsonSerializer.Serialize(user)
                 };
-                messageService.Publish(data.ExchangeName, data.RoutingKey,data.QueueName, data);
+                messageService.Publish(data);
             }
             catch (Exception ex)
             {

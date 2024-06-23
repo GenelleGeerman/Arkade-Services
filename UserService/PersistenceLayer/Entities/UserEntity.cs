@@ -43,7 +43,7 @@ public class UserEntity
             Instagram = Instagram,
             Twitter = Twitter,
             Website = Website,
-            UserName = UserName
+            Username = UserName
         };
     }
 

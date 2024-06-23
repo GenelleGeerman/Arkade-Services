@@ -55,7 +55,7 @@ namespace BusinessLayer.Services
         private void PropagateDeletion(long id)
         {
             MessageData data = MessageFactory.GetDeleteMessage(id);
-            msgService.Publish(data.ExchangeName, data.RoutingKey, data.QueueName, data);
+            msgService.Publish(data);
         }
     }
 }

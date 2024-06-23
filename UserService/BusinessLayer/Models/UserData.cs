@@ -12,7 +12,7 @@ public class UserData
     public string Instagram { get; set; } = string.Empty;
     public string Twitter { get; set; } = string.Empty;
     public string Website { get; set; } = string.Empty;
-    public string UserName { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
 
     public UserData Copy()
     {
