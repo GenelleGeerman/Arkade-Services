@@ -2,11 +2,14 @@ name: Postman Integration Tests
 
 on:
   workflow_run:
-    workflows: ["Review Service CI/CD", "User Service CI/CD"]
+    workflows:
+      - "Review Service CI/CD"
+      - "User Service CI/CD"
     types:
       - completed
 jobs:
   newman-tests:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "14"
+          node-version: "20"
 
       - name: Install Newman
         run: npm install -g newman
