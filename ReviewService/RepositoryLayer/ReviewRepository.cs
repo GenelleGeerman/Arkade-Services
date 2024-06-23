@@ -16,8 +16,9 @@ public class ReviewRepository : IReviewRepository
 
     public async Task<Review> Create(Review request)
     {
-        context.Set<ReviewEntity>().Add(new(request));
-        return await context.SaveChangesAsync() == 1 ? request : new();
+        ReviewEntity entity = new(request);
+        context.Reviews.Add(entity);
+        return await context.SaveChangesAsync() == 1 ? entity.GetReview() : new();
     }
 
     public async Task<Review> Get(int id)
