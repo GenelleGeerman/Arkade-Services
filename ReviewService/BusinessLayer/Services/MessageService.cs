@@ -58,7 +58,6 @@ public class MessageService : IMessageService
         {
             var body = ea.Body.ToArray();
             var receivedMessage = Encoding.UTF8.GetString(body);
-            Console.WriteLine(receivedMessage);
 
             MessageData? response = JsonSerializer.Deserialize<MessageData>(receivedMessage);
             handler(response ?? new() { Data = "Err" });
